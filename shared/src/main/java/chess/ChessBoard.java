@@ -36,16 +36,16 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        String piecesOut = "[";
+        StringBuilder piecesOut = new StringBuilder("[");
         for(int i = 7; i >= 0; i--){
             for(int j = 7; j >= 0; j--) {
-                piecesOut += "[" + pieces[i][j] + "]";
+                piecesOut.append("[").append(pieces[i][j]).append("]");
             }
-            piecesOut += "\n";
+            piecesOut.append("\n");
         }
 
-        piecesOut += "]";
-        return piecesOut;
+        piecesOut.append("]");
+        return piecesOut.toString();
 //        return Arrays.toString(pieces);
     }
 
