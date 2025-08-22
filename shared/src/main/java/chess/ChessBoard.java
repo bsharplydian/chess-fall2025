@@ -7,11 +7,16 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
-
+    ChessPiece[][] pieces =  new ChessPiece[8][8];
     public ChessBoard() {
-        
-    }
 
+    }
+    private int coord0to1(int coord) {
+        return coord + 1;
+    }
+    private int coord1to0(int coord) {
+        return coord - 1;
+    }
     /**
      * Adds a chess piece to the chessboard
      *
@@ -19,7 +24,9 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+        int row = coord1to0(position.getRow());
+        int col = coord1to0(position.getColumn());
+        pieces[row][col] = piece;
     }
 
     /**
@@ -30,7 +37,9 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        throw new RuntimeException("Not implemented");
+        int row = coord1to0(position.getRow());
+        int col = coord1to0(position.getColumn());
+        return pieces[row][col];
     }
 
     /**
@@ -38,6 +47,6 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+
     }
 }
