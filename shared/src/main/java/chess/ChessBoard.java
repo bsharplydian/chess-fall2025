@@ -1,4 +1,9 @@
 package chess;
+import java.util.Arrays;
+import java.util.Objects;
+
+import static chess.ChessGame.TeamColor.*;
+import static chess.ChessPiece.PieceType.*;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -11,6 +16,39 @@ public class ChessBoard {
     public ChessBoard() {
 
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Objects.deepEquals(pieces, that.pieces);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(pieces);
+    }
+
+    @Override
+    public String toString() {
+        String piecesOut = "[";
+        for(int i = 7; i >= 0; i--){
+            for(int j = 7; j >= 0; j--) {
+                piecesOut += "[" + pieces[i][j] + "]";
+            }
+            piecesOut += "\n";
+        }
+
+        piecesOut += "]";
+        return piecesOut;
+//        return Arrays.toString(pieces);
+    }
+
     private int coord0to1(int coord) {
         return coord + 1;
     }
@@ -47,6 +85,28 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
+        pieces[0][0] = new ChessPiece(WHITE, ROOK);
+        pieces[0][1] = new ChessPiece(WHITE, KNIGHT);
+        pieces[0][2] = new ChessPiece(WHITE, BISHOP);
+        pieces[0][3] = new ChessPiece(WHITE, QUEEN);
+        pieces[0][4] = new ChessPiece(WHITE, KING);
+        pieces[0][5] = new ChessPiece(WHITE, BISHOP);
+        pieces[0][6] = new ChessPiece(WHITE, KNIGHT);
+        pieces[0][7] = new ChessPiece(WHITE, ROOK);
+        for(int i = 0; i < 8; i++){
+            pieces[1][i] = new ChessPiece(WHITE, PAWN);
+        }
 
+        pieces[7][0] = new ChessPiece(BLACK, ROOK);
+        pieces[7][1] = new ChessPiece(BLACK, KNIGHT);
+        pieces[7][2] = new ChessPiece(BLACK, BISHOP);
+        pieces[7][3] = new ChessPiece(BLACK, QUEEN);
+        pieces[7][4] = new ChessPiece(BLACK, KING);
+        pieces[7][5] = new ChessPiece(BLACK, BISHOP);
+        pieces[7][6] = new ChessPiece(BLACK, KNIGHT);
+        pieces[7][7] = new ChessPiece(BLACK, ROOK);
+        for(int i = 0; i < 8; i++){
+            pieces[6][i] = new ChessPiece(BLACK, PAWN);
+        }
     }
 }
