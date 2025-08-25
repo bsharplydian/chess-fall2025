@@ -88,23 +88,53 @@ public class ChessPiece {
         ChessPiece piece = board.getPiece(myPosition);
         ChessGame.TeamColor myColor = piece.getTeamColor();
         Collection<ChessMove> moveSet = new HashSet<>();
-        final Direction[] DIAGONALS = new Direction[]{Direction.NE, Direction.SE, Direction.SW, Direction.NW};
-        final Direction[] CARDINALS = new Direction[]{Direction.N, Direction.E, Direction.S, Direction.W};
+        final Direction[] DIAGONALS = new Direction[]{
+                Direction.NE,
+                Direction.SE,
+                Direction.SW,
+                Direction.NW};
+        final Direction[] CARDINALS = new Direction[]{
+                Direction.N,
+                Direction.E,
+                Direction.S,
+                Direction.W};
+        final int[][] KING_MOVES = new int[][]{
+                {0, 1},
+                {1, 1},
+                {1, 0},
+                {1, -1},
+                {0, -1},
+                {-1, -1},
+                {-1, 0},
+                {-1, 1}
+        };
+        final int[][] KNIGHT_MOVES = new int[][]{
+                {1, 2},
+                {2, 1},
+                {2, -1},
+                {1, -2},
+                {-1, -2},
+                {-2, -1},
+                {-2, 1},
+                {-1, 2}
+        };
         switch(piece.getPieceType()) {
             case QUEEN -> {
-                moveSet.addAll(lineMovesMultiple(board, myPosition,
+                moveSet.addAll(getMovesByLines(board, myPosition,
                         DIAGONALS,
                         myColor));
-                moveSet.addAll(lineMovesMultiple(board, myPosition,
+                moveSet.addAll(getMovesByLines(board, myPosition,
                         CARDINALS,
                         myColor));
             }
-            case BISHOP -> moveSet.addAll(lineMovesMultiple(board, myPosition,
+            case BISHOP -> moveSet.addAll(getMovesByLines(board, myPosition,
                     DIAGONALS,
                     myColor));
-            case ROOK -> moveSet.addAll(lineMovesMultiple(board, myPosition,
+            case ROOK -> moveSet.addAll(getMovesByLines(board, myPosition,
                     CARDINALS,
                     myColor));
+            case KING -> moveSet.addAll(getMovesBySet(board, myPosition, KING_MOVES, myColor));
+            case KNIGHT -> moveSet.addAll(getMovesBySet(board, myPosition, KNIGHT_MOVES, myColor));
         }
         return moveSet;
     }
@@ -115,8 +145,8 @@ public class ChessPiece {
      * being blocked by a same-color piece
      * and capturing a different-color piece
      */
-    private Collection<ChessMove> lineMoves(ChessBoard board, ChessPosition myPosition,
-                                            Direction dir,  ChessGame.TeamColor myColor) {
+    private Collection<ChessMove> getMovesByLine(ChessBoard board, ChessPosition myPosition,
+                                                 Direction dir, ChessGame.TeamColor myColor) {
         int addX = switch(dir) {
             case N, S -> 0;
             case NE, E, SE -> 1;
@@ -142,25 +172,44 @@ public class ChessPiece {
 
         return moveSet;
     }
-    private Collection<ChessMove> lineMovesMultiple(ChessBoard board, ChessPosition myPosition,
-                                                    Direction[] dirs, ChessGame.TeamColor myColor) {
+
+    private Collection<ChessMove> getMovesByLines(ChessBoard board, ChessPosition myPosition,
+                                                  Direction[] dirs, ChessGame.TeamColor myColor) {
         Collection<ChessMove> moveSet = new HashSet<>();
         for (Direction dir : dirs) {
-            moveSet.addAll(lineMoves(board, myPosition, dir, myColor));
+            moveSet.addAll(getMovesByLine(board, myPosition, dir, myColor));
         }
         return moveSet;
     }
-    private boolean legalSquare(ChessBoard board, ChessPosition nextSquare, ChessGame.TeamColor myColor) {
-        if(nextSquare.outOfBounds()) {
+
+    private Collection<ChessMove> getMovesBySet(ChessBoard board, ChessPosition myPosition,
+                                                int[][] relativePositions, ChessGame.TeamColor myColor) {
+        Collection<ChessMove> legalMoves = new HashSet<ChessMove>();
+
+        for(int[] position : relativePositions) {
+            int addX = position[0];
+            int addY = position[1];
+            ChessPosition square = new ChessPosition(myPosition.getRow() + addX,
+                    myPosition.getColumn() + addY);
+            if(legalSquare(board, square, myColor)){
+                legalMoves.add(new ChessMove(myPosition, square, null));
+            }
+        }
+        return legalMoves;
+    }
+
+    private boolean legalSquare(ChessBoard board, ChessPosition square, ChessGame.TeamColor myColor) {
+        if(square.outOfBounds()) {
             return false;
         }
-        ChessPiece otherPiece = board.getPiece(nextSquare);
+        ChessPiece otherPiece = board.getPiece(square);
         if(otherPiece == null) {
             return true;
         } else {
             return areEnemies(otherPiece.getTeamColor(), myColor);
         }
     }
+
     private boolean areEnemies(ChessGame.TeamColor color1, ChessGame.TeamColor color2) {
         return color1 != color2;
     }
