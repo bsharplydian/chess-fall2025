@@ -184,7 +184,7 @@ public class ChessPiece {
 
     private Collection<ChessMove> getMovesBySet(ChessBoard board, ChessPosition myPosition,
                                                 int[][] relativePositions, ChessGame.TeamColor myColor) {
-        Collection<ChessMove> legalMoves = new HashSet<ChessMove>();
+        Collection<ChessMove> legalMoves = new HashSet<>();
 
         for(int[] position : relativePositions) {
             int addX = position[0];
