@@ -50,4 +50,8 @@ public class ChessPosition {
     public int getColumn() {
         return this.col;
     }
+
+    public boolean outOfBounds() {
+        return this.row > 8 || this.col > 8 || this.row < 1 || this.col < 1;
+    }
 }

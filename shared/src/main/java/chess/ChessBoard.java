@@ -49,9 +49,6 @@ public class ChessBoard {
 //        return Arrays.toString(pieces);
     }
 
-    private int coord0to1(int coord) {
-        return coord + 1;
-    }
     private int coord1to0(int coord) {
         return coord - 1;
     }
