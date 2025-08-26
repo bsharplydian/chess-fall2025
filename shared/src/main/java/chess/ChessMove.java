@@ -38,6 +38,13 @@ public class ChessMove {
         return Objects.hash(startPosition, endPosition, promotionPiece);
     }
 
+    @Override
+    public String toString() {
+        return "[" + startPosition +
+                ":" + endPosition +
+                "]";
+    }
+
     /**
      * @return ChessPosition of starting location
      */

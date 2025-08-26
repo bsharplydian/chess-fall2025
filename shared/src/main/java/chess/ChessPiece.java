@@ -135,6 +135,7 @@ public class ChessPiece {
                     myColor));
             case KING -> moveSet.addAll(getMovesBySet(board, myPosition, KING_MOVES, myColor));
             case KNIGHT -> moveSet.addAll(getMovesBySet(board, myPosition, KNIGHT_MOVES, myColor));
+            case PAWN -> moveSet.addAll(getMovesByPawn(board, myPosition, myColor));
         }
         return moveSet;
     }
@@ -198,6 +199,26 @@ public class ChessPiece {
         return legalMoves;
     }
 
+    private Collection<ChessMove> getMovesByPawn(ChessBoard board, ChessPosition myPosition,
+                                                 ChessGame.TeamColor myColor) {
+        Collection<ChessMove> moveSet = new HashSet<>();
+        int myRow = myPosition.getRow();
+        int myCol = myPosition.getColumn();
+        int pawnDirection = switch(myColor) {
+            case WHITE -> 1;
+            case BLACK -> -1;
+        };
+        ChessPosition firstSquare = new ChessPosition(myRow + pawnDirection, myCol);
+        ChessPosition secondSquare = new ChessPosition(myRow + 2*pawnDirection, myCol);
+
+        if(legalSquare(board, firstSquare, myColor)){
+            moveSet.add(new ChessMove(myPosition, firstSquare, null));
+        }
+        if((myRow == 2 || myRow == 7) && legalSquare(board, firstSquare, myColor) && legalSquare(board, secondSquare, myColor)) {
+            moveSet.add(new ChessMove(myPosition, secondSquare, null));
+        }
+        return moveSet;
+    }
     private boolean legalSquare(ChessBoard board, ChessPosition square, ChessGame.TeamColor myColor) {
         if(square.outOfBounds()) {
             return false;
