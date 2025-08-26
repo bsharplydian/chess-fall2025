@@ -210,15 +210,48 @@ public class ChessPiece {
         };
         ChessPosition firstSquare = new ChessPosition(myRow + pawnDirection, myCol);
         ChessPosition secondSquare = new ChessPosition(myRow + 2*pawnDirection, myCol);
+        ChessPosition westCaptureSquare = new ChessPosition(myRow + pawnDirection, myCol - 1);
+        ChessPosition eastCaptureSquare = new ChessPosition(myRow + pawnDirection, myCol + 1);
 
-        if(legalSquare(board, firstSquare, myColor)){
-            moveSet.add(new ChessMove(myPosition, firstSquare, null));
+        // forward 1
+        if(board.isEmptyAt(firstSquare)){
+            moveSet.addAll(getPawnMovesByRank(myPosition, firstSquare, myColor));
+
+            // forward 2
+            if((myRow == 2 || myRow == 7) && board.isEmptyAt(secondSquare)) {
+                moveSet.add(new ChessMove(myPosition, secondSquare, null));
+            }
         }
-        if((myRow == 2 || myRow == 7) && legalSquare(board, firstSquare, myColor) && legalSquare(board, secondSquare, myColor)) {
-            moveSet.add(new ChessMove(myPosition, secondSquare, null));
+        // capture west
+        if(!westCaptureSquare.outOfBounds() &&
+                !board.isEmptyAt(westCaptureSquare) &&
+                areEnemies(myColor, board.getPiece(westCaptureSquare).getTeamColor())) {
+            moveSet.addAll(getPawnMovesByRank(myPosition, westCaptureSquare, myColor));
+        }
+        // capture east
+        if(!eastCaptureSquare.outOfBounds() &&
+                !board.isEmptyAt(eastCaptureSquare) &&
+                areEnemies(myColor, board.getPiece(eastCaptureSquare).getTeamColor())) {
+            moveSet.addAll(getPawnMovesByRank(myPosition, eastCaptureSquare, myColor));
         }
         return moveSet;
     }
+
+    private Collection<ChessMove> getPawnMovesByRank(ChessPosition myPosition,
+                                                     ChessPosition newPosition, ChessGame.TeamColor myColor) {
+        Collection<ChessMove> moveSet = new HashSet<>();
+        if((newPosition.getRow() == 8 && myColor == ChessGame.TeamColor.WHITE) ||
+                (newPosition.getRow() == 1 && myColor == ChessGame.TeamColor.BLACK)){
+             moveSet.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
+            moveSet.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
+            moveSet.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
+            moveSet.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
+        } else {
+            moveSet.add(new ChessMove(myPosition, newPosition, null));
+        }
+        return moveSet;
+    }
+
     private boolean legalSquare(ChessBoard board, ChessPosition square, ChessGame.TeamColor myColor) {
         if(square.outOfBounds()) {
             return false;

@@ -48,7 +48,12 @@ public class ChessBoard {
         return piecesOut.toString();
 //        return Arrays.toString(pieces);
     }
-
+    public boolean isEmptyAt(ChessPosition square) {
+        if(square.outOfBounds()){
+            return false;
+        }
+        return getPiece(square) == null;
+    }
     private int coord1to0(int coord) {
         return coord - 1;
     }
