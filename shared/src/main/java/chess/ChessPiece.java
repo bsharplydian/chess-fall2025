@@ -120,12 +120,14 @@ public class ChessPiece {
         };
         switch(piece.getPieceType()) {
             case QUEEN -> {
-                moveSet.addAll(getMovesByLines(board, myPosition,
-                        DIAGONALS,
-                        myColor));
-                moveSet.addAll(getMovesByLines(board, myPosition,
-                        CARDINALS,
-                        myColor));
+                MovementCalculator queenCalculator = new QueenCalculator();
+                moveSet.addAll(queenCalculator.pieceMoves(board, myPosition));
+//                moveSet.addAll(getMovesByLines(board, myPosition,
+//                        DIAGONALS,
+//                        myColor));
+//                moveSet.addAll(getMovesByLines(board, myPosition,
+//                        CARDINALS,
+//                        myColor));
             }
             case BISHOP -> moveSet.addAll(getMovesByLines(board, myPosition,
                     DIAGONALS,
@@ -162,7 +164,7 @@ public class ChessPiece {
 
         ChessPosition nextSquare = new ChessPosition(myPosition.getRow() + addX,
                 myPosition.getColumn() + addY);
-        while(legalSquare(board, nextSquare, myColor)) {
+        while(isLegalSquare(board, nextSquare, myColor)) {
             moveSet.add(new ChessMove(myPosition, nextSquare, null));
             ChessPiece otherPiece = board.getPiece(nextSquare);
             if(otherPiece != null && areEnemies(otherPiece.getTeamColor(), myColor)) {
@@ -192,7 +194,7 @@ public class ChessPiece {
             int addY = position[1];
             ChessPosition square = new ChessPosition(myPosition.getRow() + addX,
                     myPosition.getColumn() + addY);
-            if(legalSquare(board, square, myColor)){
+            if(isLegalSquare(board, square, myColor)){
                 legalMoves.add(new ChessMove(myPosition, square, null));
             }
         }
@@ -252,7 +254,7 @@ public class ChessPiece {
         return moveSet;
     }
 
-    private boolean legalSquare(ChessBoard board, ChessPosition square, ChessGame.TeamColor myColor) {
+    public static boolean isLegalSquare(ChessBoard board, ChessPosition square, ChessGame.TeamColor myColor) {
         if(square.outOfBounds()) {
             return false;
         }
@@ -264,7 +266,7 @@ public class ChessPiece {
         }
     }
 
-    private boolean areEnemies(ChessGame.TeamColor color1, ChessGame.TeamColor color2) {
+    public static boolean areEnemies(ChessGame.TeamColor color1, ChessGame.TeamColor color2) {
         return color1 != color2;
     }
 }
