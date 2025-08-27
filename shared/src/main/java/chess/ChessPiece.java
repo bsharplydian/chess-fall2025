@@ -52,17 +52,6 @@ public class ChessPiece {
         PAWN
     }
 
-    public enum Direction {
-        N,
-        NE,
-        E,
-        SE,
-        S,
-        SW,
-        W,
-        NW
-    }
-
     /**
      * @return Which team this chess piece belongs to
      */
@@ -88,16 +77,6 @@ public class ChessPiece {
         ChessPiece piece = board.getPiece(myPosition);
         ChessGame.TeamColor myColor = piece.getTeamColor();
         Collection<ChessMove> moveSet = new HashSet<>();
-        final Direction[] DIAGONALS = new Direction[]{
-                Direction.NE,
-                Direction.SE,
-                Direction.SW,
-                Direction.NW};
-        final Direction[] CARDINALS = new Direction[]{
-                Direction.N,
-                Direction.E,
-                Direction.S,
-                Direction.W};
         final int[][] KING_MOVES = new int[][]{
                 {0, 1},
                 {1, 1},
@@ -122,65 +101,18 @@ public class ChessPiece {
             case QUEEN -> {
                 MovementCalculator queenCalculator = new QueenCalculator();
                 moveSet.addAll(queenCalculator.pieceMoves(board, myPosition));
-//                moveSet.addAll(getMovesByLines(board, myPosition,
-//                        DIAGONALS,
-//                        myColor));
-//                moveSet.addAll(getMovesByLines(board, myPosition,
-//                        CARDINALS,
-//                        myColor));
             }
-            case BISHOP -> moveSet.addAll(getMovesByLines(board, myPosition,
-                    DIAGONALS,
-                    myColor));
-            case ROOK -> moveSet.addAll(getMovesByLines(board, myPosition,
-                    CARDINALS,
-                    myColor));
+            case BISHOP -> {
+                MovementCalculator bishopCalculator = new BishopCalculator();
+                moveSet.addAll(bishopCalculator.pieceMoves(board, myPosition));
+            }
+            case ROOK -> {
+                MovementCalculator rookCalculator = new RookCalculator();
+                moveSet.addAll(rookCalculator.pieceMoves(board, myPosition));
+            }
             case KING -> moveSet.addAll(getMovesBySet(board, myPosition, KING_MOVES, myColor));
             case KNIGHT -> moveSet.addAll(getMovesBySet(board, myPosition, KNIGHT_MOVES, myColor));
             case PAWN -> moveSet.addAll(getMovesByPawn(board, myPosition, myColor));
-        }
-        return moveSet;
-    }
-
-    /**
-     * Given a board state, starting point, direction, and piece color
-     * calculates all moves in a straight line,
-     * being blocked by a same-color piece
-     * and capturing a different-color piece
-     */
-    private Collection<ChessMove> getMovesByLine(ChessBoard board, ChessPosition myPosition,
-                                                 Direction dir, ChessGame.TeamColor myColor) {
-        int addX = switch(dir) {
-            case N, S -> 0;
-            case NE, E, SE -> 1;
-            case SW, W, NW -> -1;
-        };
-        int addY = switch(dir) {
-            case N, NE, NW -> 1;
-            case E, W -> 0;
-            case SE, S, SW -> -1;
-        };
-        Collection<ChessMove> moveSet = new HashSet<>();
-
-        ChessPosition nextSquare = new ChessPosition(myPosition.getRow() + addX,
-                myPosition.getColumn() + addY);
-        while(isLegalSquare(board, nextSquare, myColor)) {
-            moveSet.add(new ChessMove(myPosition, nextSquare, null));
-            ChessPiece otherPiece = board.getPiece(nextSquare);
-            if(otherPiece != null && areEnemies(otherPiece.getTeamColor(), myColor)) {
-                break; // ensures that this only gets the first opposing piece in the line
-            }
-            nextSquare = new ChessPosition(nextSquare.getRow() + addX, nextSquare.getColumn()+addY);
-        }
-
-        return moveSet;
-    }
-
-    private Collection<ChessMove> getMovesByLines(ChessBoard board, ChessPosition myPosition,
-                                                  Direction[] dirs, ChessGame.TeamColor myColor) {
-        Collection<ChessMove> moveSet = new HashSet<>();
-        for (Direction dir : dirs) {
-            moveSet.addAll(getMovesByLine(board, myPosition, dir, myColor));
         }
         return moveSet;
     }
