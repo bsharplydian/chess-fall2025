@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -74,87 +73,16 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessPiece piece = board.getPiece(myPosition);
-        ChessGame.TeamColor myColor = piece.getTeamColor();
-        Collection<ChessMove> moveSet = new HashSet<>();
-        switch(piece.getPieceType()) {
-            case QUEEN -> {
-                MovementCalculator queenCalculator = new QueenCalculator();
-                moveSet.addAll(queenCalculator.pieceMoves(board, myPosition));
-            }
-            case BISHOP -> {
-                MovementCalculator bishopCalculator = new BishopCalculator();
-                moveSet.addAll(bishopCalculator.pieceMoves(board, myPosition));
-            }
-            case ROOK -> {
-                MovementCalculator rookCalculator = new RookCalculator();
-                moveSet.addAll(rookCalculator.pieceMoves(board, myPosition));
-            }
-            case KING -> {
-                MovementCalculator kingCalculator = new KingCalculator();
-                moveSet.addAll(kingCalculator.pieceMoves(board, myPosition));
-            }
-            case KNIGHT -> {
-                MovementCalculator knightCalculator = new KnightCalculator();
-                moveSet.addAll(knightCalculator.pieceMoves(board, myPosition));
-            }
-            case PAWN -> moveSet.addAll(getMovesByPawn(board, myPosition, myColor));
-        }
-        return moveSet;
-    }
-
-
-    private Collection<ChessMove> getMovesByPawn(ChessBoard board, ChessPosition myPosition,
-                                                 ChessGame.TeamColor myColor) {
-        Collection<ChessMove> moveSet = new HashSet<>();
-        int myRow = myPosition.getRow();
-        int myCol = myPosition.getColumn();
-        int pawnDirection = switch(myColor) {
-            case WHITE -> 1;
-            case BLACK -> -1;
+        ChessPiece.PieceType pieceType = board.getPiece(myPosition).getPieceType();
+        MovementCalculator pieceCalculator = switch(pieceType) {
+            case QUEEN -> new QueenCalculator();
+            case BISHOP -> new BishopCalculator();
+            case ROOK -> new RookCalculator();
+            case KING -> new KingCalculator();
+            case KNIGHT -> new KnightCalculator();
+            case PAWN -> new PawnCalculator();
         };
-        ChessPosition firstSquare = new ChessPosition(myRow + pawnDirection, myCol);
-        ChessPosition secondSquare = new ChessPosition(myRow + 2*pawnDirection, myCol);
-        ChessPosition westCaptureSquare = new ChessPosition(myRow + pawnDirection, myCol - 1);
-        ChessPosition eastCaptureSquare = new ChessPosition(myRow + pawnDirection, myCol + 1);
-
-        // forward 1
-        if(board.isEmptyAt(firstSquare)){
-            moveSet.addAll(getPawnMovesByRank(myPosition, firstSquare, myColor));
-
-            // forward 2
-            if((myRow == 2 || myRow == 7) && board.isEmptyAt(secondSquare)) {
-                moveSet.add(new ChessMove(myPosition, secondSquare, null));
-            }
-        }
-        // capture west
-        if(!westCaptureSquare.outOfBounds() &&
-                !board.isEmptyAt(westCaptureSquare) &&
-                areEnemies(myColor, board.getPiece(westCaptureSquare).getTeamColor())) {
-            moveSet.addAll(getPawnMovesByRank(myPosition, westCaptureSquare, myColor));
-        }
-        // capture east
-        if(!eastCaptureSquare.outOfBounds() &&
-                !board.isEmptyAt(eastCaptureSquare) &&
-                areEnemies(myColor, board.getPiece(eastCaptureSquare).getTeamColor())) {
-            moveSet.addAll(getPawnMovesByRank(myPosition, eastCaptureSquare, myColor));
-        }
-        return moveSet;
-    }
-
-    private Collection<ChessMove> getPawnMovesByRank(ChessPosition myPosition,
-                                                     ChessPosition newPosition, ChessGame.TeamColor myColor) {
-        Collection<ChessMove> moveSet = new HashSet<>();
-        if((newPosition.getRow() == 8 && myColor == ChessGame.TeamColor.WHITE) ||
-                (newPosition.getRow() == 1 && myColor == ChessGame.TeamColor.BLACK)){
-             moveSet.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
-            moveSet.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
-            moveSet.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
-            moveSet.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
-        } else {
-            moveSet.add(new ChessMove(myPosition, newPosition, null));
-        }
-        return moveSet;
+        return pieceCalculator.pieceMoves(board, myPosition);
     }
 
     public static boolean isLegalSquare(ChessBoard board, ChessPosition square, ChessGame.TeamColor myColor) {
