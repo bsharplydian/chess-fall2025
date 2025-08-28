@@ -77,26 +77,6 @@ public class ChessPiece {
         ChessPiece piece = board.getPiece(myPosition);
         ChessGame.TeamColor myColor = piece.getTeamColor();
         Collection<ChessMove> moveSet = new HashSet<>();
-        final int[][] KING_MOVES = new int[][]{
-                {0, 1},
-                {1, 1},
-                {1, 0},
-                {1, -1},
-                {0, -1},
-                {-1, -1},
-                {-1, 0},
-                {-1, 1}
-        };
-        final int[][] KNIGHT_MOVES = new int[][]{
-                {1, 2},
-                {2, 1},
-                {2, -1},
-                {1, -2},
-                {-1, -2},
-                {-2, -1},
-                {-2, 1},
-                {-1, 2}
-        };
         switch(piece.getPieceType()) {
             case QUEEN -> {
                 MovementCalculator queenCalculator = new QueenCalculator();
@@ -110,28 +90,19 @@ public class ChessPiece {
                 MovementCalculator rookCalculator = new RookCalculator();
                 moveSet.addAll(rookCalculator.pieceMoves(board, myPosition));
             }
-            case KING -> moveSet.addAll(getMovesBySet(board, myPosition, KING_MOVES, myColor));
-            case KNIGHT -> moveSet.addAll(getMovesBySet(board, myPosition, KNIGHT_MOVES, myColor));
+            case KING -> {
+                MovementCalculator kingCalculator = new KingCalculator();
+                moveSet.addAll(kingCalculator.pieceMoves(board, myPosition));
+            }
+            case KNIGHT -> {
+                MovementCalculator knightCalculator = new KnightCalculator();
+                moveSet.addAll(knightCalculator.pieceMoves(board, myPosition));
+            }
             case PAWN -> moveSet.addAll(getMovesByPawn(board, myPosition, myColor));
         }
         return moveSet;
     }
 
-    private Collection<ChessMove> getMovesBySet(ChessBoard board, ChessPosition myPosition,
-                                                int[][] relativePositions, ChessGame.TeamColor myColor) {
-        Collection<ChessMove> legalMoves = new HashSet<>();
-
-        for(int[] position : relativePositions) {
-            int addX = position[0];
-            int addY = position[1];
-            ChessPosition square = new ChessPosition(myPosition.getRow() + addX,
-                    myPosition.getColumn() + addY);
-            if(isLegalSquare(board, square, myColor)){
-                legalMoves.add(new ChessMove(myPosition, square, null));
-            }
-        }
-        return legalMoves;
-    }
 
     private Collection<ChessMove> getMovesByPawn(ChessBoard board, ChessPosition myPosition,
                                                  ChessGame.TeamColor myColor) {
