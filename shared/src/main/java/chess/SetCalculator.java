@@ -5,7 +5,7 @@ import java.util.HashSet;
 
 public abstract class SetCalculator implements MovementCalculator {
 
-    public abstract Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition);
+    public abstract Collection<ChessMove> getPieceMoves(ChessBoard board, ChessPosition myPosition);
 
     protected Collection<ChessMove> getMovesBySet(ChessBoard board, ChessPosition myPosition,
                                                 int[][] relativePositions, ChessGame.TeamColor myColor) {

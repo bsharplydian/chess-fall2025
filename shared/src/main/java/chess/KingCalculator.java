@@ -14,7 +14,7 @@ public class KingCalculator extends SetCalculator {
             {-1, 0},
             {-1, 1}
     };
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> getPieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
         return new HashSet<>(getMovesBySet(board, myPosition, KING_MOVES, myColor));
     }

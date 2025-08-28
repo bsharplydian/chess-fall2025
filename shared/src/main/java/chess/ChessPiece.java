@@ -82,7 +82,7 @@ public class ChessPiece {
             case KNIGHT -> new KnightCalculator();
             case PAWN -> new PawnCalculator();
         };
-        return pieceCalculator.pieceMoves(board, myPosition);
+        return pieceCalculator.getPieceMoves(board, myPosition);
     }
 
     public static boolean isLegalSquare(ChessBoard board, ChessPosition square, ChessGame.TeamColor myColor) {

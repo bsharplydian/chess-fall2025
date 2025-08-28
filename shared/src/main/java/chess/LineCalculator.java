@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public abstract class LineCalculator implements MovementCalculator {
-    public abstract Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition);
+    public abstract Collection<ChessMove> getPieceMoves(ChessBoard board, ChessPosition myPosition);
     protected enum Direction {
         N,
         NE,

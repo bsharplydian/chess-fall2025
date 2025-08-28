@@ -15,7 +15,7 @@ public class KnightCalculator extends SetCalculator {
             {-2, 1},
             {-1, 2}
     };
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> getPieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
         return new HashSet<>(getMovesBySet(board, myPosition, KNIGHT_MOVES, myColor));
     }

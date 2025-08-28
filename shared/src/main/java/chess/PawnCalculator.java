@@ -5,7 +5,7 @@ import java.util.HashSet;
 
 public class PawnCalculator implements MovementCalculator {
 
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> getPieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
         return new HashSet<>(getPawnMoves(board, myPosition, myColor));
     }
