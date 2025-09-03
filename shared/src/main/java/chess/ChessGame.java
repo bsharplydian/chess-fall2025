@@ -10,7 +10,7 @@ import java.util.Collection;
  */
 public class ChessGame {
     private TeamColor currentTeamTurn;
-    private ChessBoard chessBoard = new ChessBoard();
+    private ChessBoard currentBoard = new ChessBoard();
     private boolean whiteCanCastle = true;
     private boolean blackCanCastle = true;
     public ChessGame() {
@@ -107,7 +107,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        chessBoard = board;
+        currentBoard = board;
     }
 
     /**
@@ -116,6 +116,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        return chessBoard;
+        return currentBoard;
     }
 }
