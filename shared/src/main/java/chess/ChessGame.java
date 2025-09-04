@@ -63,6 +63,10 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         currentBoard.movePiece(move, currentBoard.getPiece(move.getStartPosition()));
+        currentTeamTurn = switch(currentTeamTurn) {
+            case BLACK -> TeamColor.WHITE;
+            case WHITE -> TeamColor.BLACK;
+        };
         // throw InvalidMoveException if not turn
         // throw InvalidMoveException if illegal move
         // set white/black CanCastle variable if rook or king
