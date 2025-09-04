@@ -67,6 +67,9 @@ public class ChessBoard {
     private int coord1to0(int coord) {
         return coord - 1;
     }
+    private int coord0to1(int coord) {
+        return coord + 1;
+    }
     /**
      * Adds a chess piece to the chessboard
      *
@@ -99,7 +102,19 @@ public class ChessBoard {
         int col = coord1to0(position.getColumn());
         return pieces[row][col];
     }
-
+    public ChessPosition getKingPosition() {
+        for (int row = 0; row < pieces.length; row++) {
+            for (int col = 0; col < pieces.length; col++) {
+                if(pieces[row][col] == null) {
+                    continue;
+                }
+                if(pieces[row][col].getPieceType() == ChessPiece.PieceType.KING) {
+                    return new ChessPosition(coord0to1(row), coord0to1(col));
+                }
+            }
+        }
+        return null;
+    }
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)

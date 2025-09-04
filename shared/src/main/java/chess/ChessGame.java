@@ -1,5 +1,7 @@
 package chess;
 
+import chess.moveCalculators.CheckCalculator;
+
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -112,7 +114,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        CheckCalculator checkCalculator = new CheckCalculator(currentBoard, teamColor, currentBoard.getKingPosition());
+        return checkCalculator.isInCheck();
         //
     }
 

@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class KingCalculator extends SetCalculator {
-    final int[][] KING_MOVES = new int[][]{
+    static final int[][] KING_MOVES = new int[][]{
             {0, 1},
             {1, 1},
             {1, 0},

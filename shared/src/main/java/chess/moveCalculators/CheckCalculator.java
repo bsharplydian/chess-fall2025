@@ -2,10 +2,13 @@ package chess.moveCalculators;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
 import chess.ChessPosition;
 
 import static chess.moveCalculators.LineCalculator.CARDINALS;
 import static chess.moveCalculators.LineCalculator.DIAGONALS;
+import static chess.moveCalculators.KnightCalculator.KNIGHT_MOVES;
+import static chess.moveCalculators.KingCalculator.KING_MOVES;
 
 public class CheckCalculator {
     private final ChessBoard board;
@@ -19,7 +22,7 @@ public class CheckCalculator {
     }
 
     public boolean isInCheck() {
-        throw new RuntimeException("Not Implemented");
+        return isThreatenedCardinals() || isThreatenedDiagonals() || isThreatenedKing();
     }
 
     private boolean isThreatenedDiagonals() {
@@ -40,7 +43,49 @@ public class CheckCalculator {
     }
 
     private boolean isThreatenedLine(LineCalculator.Direction dir) {
-        throw new RuntimeException("Not Implemented");
-    }
+        int addX = switch(dir) {
+            case N, S -> 0;
+            case NE, E, SE -> 1;
+            case SW, W, NW -> -1;
+        };
+        int addY = switch(dir) {
+            case N, NE, NW -> 1;
+            case E, W -> 0;
+            case SE, S, SW -> -1;
+        };
+        ChessPiece.PieceType[] threateningPieces = switch(dir) {
+            case N, S, E, W -> new ChessPiece.PieceType[]{ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.BISHOP};
+            case NW, SW, SE, NE -> new ChessPiece.PieceType[]{ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.ROOK};
+        };
+        ChessPosition nextPosition = new ChessPosition(kingPosition.getRow() + addX, kingPosition.getColumn() + addY);
+        while(ChessPiece.isLegalSquare(board, nextPosition, myTeamColor)) {
+            for(ChessPiece.PieceType threateningPiece: threateningPieces) {
+                ChessPiece otherPiece = board.getPiece(nextPosition);
+                if(otherPiece != null && otherPiece.getPieceType() == threateningPiece) {
+                    return true;
+                }
+            }
 
+            nextPosition = new ChessPosition(nextPosition.getRow() + addX, nextPosition.getColumn() + addY);
+        }
+        return false;
+    }
+    private boolean isThreatenedKing() {
+        for(int[] coords : KING_MOVES) {
+            int newRow = kingPosition.getRow() + coords[0];
+            int newCol = kingPosition.getColumn() + coords[1];
+            ChessPosition nextPosition = new ChessPosition(newRow, newCol);
+            if(!ChessPiece.isLegalSquare(board, nextPosition, myTeamColor)) {
+                continue;
+            }
+            ChessPiece otherPiece = board.getPiece(nextPosition);
+            if(otherPiece == null) {
+                continue;
+            }
+            if(board.getPiece(nextPosition).getPieceType() == ChessPiece.PieceType.KING) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

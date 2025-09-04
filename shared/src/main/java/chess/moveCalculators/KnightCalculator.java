@@ -10,7 +10,7 @@ import java.util.HashSet;
 
 
 public class KnightCalculator extends SetCalculator {
-    final int[][] KNIGHT_MOVES = new int[][]{
+    static final int[][] KNIGHT_MOVES = new int[][]{
             {1, 2},
             {2, 1},
             {2, -1},
