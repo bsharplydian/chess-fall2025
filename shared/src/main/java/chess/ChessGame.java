@@ -62,7 +62,7 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        currentBoard.movePiece(move, currentBoard.getPiece(move.getStartPosition()));
         // throw InvalidMoveException if not turn
         // throw InvalidMoveException if illegal move
         // set white/black CanCastle variable if rook or king

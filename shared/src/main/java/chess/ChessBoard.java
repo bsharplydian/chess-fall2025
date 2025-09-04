@@ -68,7 +68,15 @@ public class ChessBoard {
         int col = coord1to0(position.getColumn());
         pieces[row][col] = piece;
     }
-
+    /**
+     * without checking for validity, moves a piece from one square to another, replacing the piece at the end.
+     * @param move move to be executed
+     * @param piece piece to be moved
+     */
+    public void movePiece(ChessMove move, ChessPiece piece) {
+        addPiece(move.getEndPosition(), piece);
+        addPiece(move.getStartPosition(), null);
+    }
     /**
      * Gets a chess piece on the chessboard
      *
