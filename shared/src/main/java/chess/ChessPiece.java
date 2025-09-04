@@ -19,7 +19,10 @@ public class ChessPiece {
         this.pieceColor = pieceColor;
         this.pieceType = type;
     }
-
+    public ChessPiece(ChessPiece copy) {
+        this.pieceColor = copy.pieceColor;
+        this.pieceType = copy.pieceType;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) {

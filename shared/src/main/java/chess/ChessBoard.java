@@ -16,7 +16,17 @@ public class ChessBoard {
     public ChessBoard() {
 
     }
-
+    public ChessBoard(ChessBoard copyBoard) {
+        for(int row = 0; row < copyBoard.pieces.length; row++) {
+            for(int col = 0; col < copyBoard.pieces.length; col++) {
+                if (copyBoard.pieces[row][col] != null) {
+                    this.pieces[row][col] = new ChessPiece(copyBoard.pieces[row][col]);
+                } else {
+                    this.pieces[row][col] = null;
+                }
+            }
+        }
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) {
