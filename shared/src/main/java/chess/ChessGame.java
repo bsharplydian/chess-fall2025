@@ -16,6 +16,12 @@ public class ChessGame {
     public ChessGame() {
         currentTeamTurn = TeamColor.WHITE;
     }
+    public ChessGame(ChessGame copy) {
+        currentTeamTurn = copy.currentTeamTurn;
+        currentBoard = new ChessBoard(copy.currentBoard);
+        whiteCanCastle = copy.whiteCanCastle;
+        blackCanCastle = copy.blackCanCastle;
+    }
 
     /**
      * @return Which team's turn it is
