@@ -49,7 +49,10 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece thisPiece = currentBoard.getPiece(startPosition);
+        Collection<ChessMove> moves = thisPiece.pieceMoves(currentBoard, startPosition);
+
+        return moves;
         // call pieceMoves
         // for each resulting move:
             // if king is in check, remove from list
