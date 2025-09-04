@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -57,7 +58,17 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece thisPiece = currentBoard.getPiece(startPosition);
         Collection<ChessMove> moves = thisPiece.pieceMoves(currentBoard, startPosition);
-
+        Collection<ChessMove> invalidMoves = new HashSet<>();
+        for(ChessMove move : moves) {
+            ChessGame previewGame = new ChessGame(this);
+            previewGame.currentBoard.movePiece(move, thisPiece);
+            if(previewGame.isInCheck(thisPiece.getTeamColor())) {
+                invalidMoves.add(move);
+            }
+        }
+        for(ChessMove move : invalidMoves) {
+            moves.remove(move);
+        }
         return moves;
         // call pieceMoves
         // for each resulting move:
@@ -71,6 +82,18 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        ChessPiece thisPiece = currentBoard.getPiece(move.getStartPosition());
+        if(thisPiece == null) {
+            throw new InvalidMoveException("no piece at start position");
+        }
+        if(thisPiece.getTeamColor() != currentTeamTurn) {
+            throw new InvalidMoveException("wrong turn");
+        }
+
+        Collection<ChessMove> moves = validMoves(move.getStartPosition());
+        if(!moves.contains(move)) {
+            throw new InvalidMoveException("illegal move");
+        }
         currentBoard.movePiece(move, currentBoard.getPiece(move.getStartPosition()));
         currentTeamTurn = switch(currentTeamTurn) {
             case BLACK -> TeamColor.WHITE;
