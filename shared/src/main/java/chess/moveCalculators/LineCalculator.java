@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 public abstract class LineCalculator implements MovementCalculator {
     public abstract Collection<ChessMove> getPieceMoves(ChessBoard board, ChessPosition myPosition);
-    protected enum Direction {
+    public enum Direction {
         N,
         NE,
         E,
@@ -17,13 +17,13 @@ public abstract class LineCalculator implements MovementCalculator {
         W,
         NW
     }
-    protected final Direction[] DIAGONALS = new Direction[]{
+    public static Direction[] DIAGONALS = new Direction[]{
             Direction.NE,
             Direction.SE,
             Direction.SW,
             Direction.NW
     };
-    protected final Direction[] CARDINALS = new Direction[]{
+    public static final Direction[] CARDINALS = new Direction[]{
             Direction.N,
             Direction.E,
             Direction.S,
