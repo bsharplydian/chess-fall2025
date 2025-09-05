@@ -42,7 +42,19 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        return pieceColor.toString() + " " + pieceType.toString();
+//        return pieceColor.toString() + " " + pieceType.toString();
+        String str = switch(getPieceType()) {
+            case KING -> "k";
+            case QUEEN -> "q";
+            case BISHOP -> "b";
+            case KNIGHT -> "n";
+            case ROOK -> "r";
+            case PAWN -> "p";
+        };
+        if(getTeamColor() == ChessGame.TeamColor.WHITE){
+            str = str.toUpperCase();
+        }
+        return str;
     }
     /**
      * The various different chess piece options
@@ -78,7 +90,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessPiece.PieceType pieceType = board.getPiece(myPosition).getPieceType();
+        PieceType pieceType = board.getPiece(myPosition).getPieceType();
         MovementCalculator pieceCalculator = switch(pieceType) {
             case QUEEN -> new QueenCalculator();
             case BISHOP -> new BishopCalculator();

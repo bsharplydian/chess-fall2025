@@ -46,15 +46,20 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        StringBuilder piecesOut = new StringBuilder("[");
+        StringBuilder piecesOut = new StringBuilder("");
         for(int i = 7; i >= 0; i--){
-            for(int j = 7; j >= 0; j--) {
-                piecesOut.append("[").append(pieces[i][j]).append("]");
+            for(int j = 0; j < 8; j++) {
+                piecesOut.append("|");
+                ChessPiece piece = pieces[i][j];
+                if(piece == null) {
+                    piecesOut.append(" ");
+                } else {
+                    piecesOut.append(piece);
+                }
             }
-            piecesOut.append("\n");
+            piecesOut.append("|\n");
         }
 
-        piecesOut.append("]");
         return piecesOut.toString();
 //        return Arrays.toString(pieces);
     }
@@ -102,13 +107,14 @@ public class ChessBoard {
         int col = coord1to0(position.getColumn());
         return pieces[row][col];
     }
-    public ChessPosition getKingPosition() {
+    public ChessPosition getKingPosition(ChessGame.TeamColor teamColor) {
         for (int row = 0; row < pieces.length; row++) {
             for (int col = 0; col < pieces.length; col++) {
                 if(pieces[row][col] == null) {
                     continue;
                 }
-                if(pieces[row][col].getPieceType() == ChessPiece.PieceType.KING) {
+                if(pieces[row][col].getPieceType() == ChessPiece.PieceType.KING
+                && pieces[row][col].getTeamColor() == teamColor) {
                     return new ChessPosition(coord0to1(row), coord0to1(col));
                 }
             }

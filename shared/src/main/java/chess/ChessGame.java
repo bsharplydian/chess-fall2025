@@ -18,6 +18,7 @@ public class ChessGame {
     private boolean blackCanCastle = true;
     public ChessGame() {
         currentTeamTurn = TeamColor.WHITE;
+        this.currentBoard.resetBoard();
     }
     public ChessGame(ChessGame copy) {
         currentTeamTurn = copy.currentTeamTurn;
@@ -114,7 +115,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        CheckCalculator checkCalculator = new CheckCalculator(currentBoard, teamColor, currentBoard.getKingPosition());
+        CheckCalculator checkCalculator = new CheckCalculator(currentBoard, teamColor,
+                currentBoard.getKingPosition(teamColor));
         return checkCalculator.isInCheck();
         //
     }
