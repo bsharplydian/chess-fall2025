@@ -17,6 +17,8 @@ public class ChessGame {
     private ChessBoard currentBoard = new ChessBoard();
     private boolean whiteCanCastle = true;
     private boolean blackCanCastle = true;
+    private boolean enPassantOpen = false;
+    private ChessPosition enPassantPosition;
     public ChessGame() {
         currentTeamTurn = TeamColor.WHITE;
         this.currentBoard.resetBoard();
@@ -26,6 +28,8 @@ public class ChessGame {
         currentBoard = new ChessBoard(copy.currentBoard);
         whiteCanCastle = copy.whiteCanCastle;
         blackCanCastle = copy.blackCanCastle;
+        enPassantOpen = copy.enPassantOpen;
+        enPassantPosition = copy.enPassantPosition;
     }
 
     @Override
@@ -37,12 +41,17 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return whiteCanCastle == chessGame.whiteCanCastle && blackCanCastle == chessGame.blackCanCastle && currentTeamTurn == chessGame.currentTeamTurn && Objects.equals(currentBoard, chessGame.currentBoard);
+        return whiteCanCastle == chessGame.whiteCanCastle &&
+                blackCanCastle == chessGame.blackCanCastle &&
+                currentTeamTurn == chessGame.currentTeamTurn &&
+                Objects.equals(currentBoard, chessGame.currentBoard) &&
+                enPassantOpen == chessGame.enPassantOpen &&
+                Objects.equals(enPassantPosition, chessGame.enPassantPosition);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(currentTeamTurn, currentBoard, whiteCanCastle, blackCanCastle);
+        return Objects.hash(currentTeamTurn, currentBoard, whiteCanCastle, blackCanCastle, enPassantOpen);
     }
 
     /**
@@ -79,6 +88,12 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece thisPiece = currentBoard.getPiece(startPosition);
         Collection<ChessMove> moves = thisPiece.pieceMoves(currentBoard, startPosition);
+        if(enPassantOpen) {
+            ChessPosition leftPawnPosition = new ChessPosition(enPassantPosition.getRow(), enPassantPosition.getColumn()-1);
+            ChessPosition rightPawnPosition = new ChessPosition(enPassantPosition.getRow(), enPassantPosition.getColumn()+1);
+            moves.addAll(enPassantMove(leftPawnPosition));
+            moves.addAll(enPassantMove(rightPawnPosition));
+        }
         Collection<ChessMove> invalidMoves = new HashSet<>();
         for(ChessMove move : moves) {
             ChessGame previewGame = new ChessGame(this);
@@ -91,11 +106,23 @@ public class ChessGame {
             moves.remove(move);
         }
         return moves;
-        // call pieceMoves
-        // for each resulting move:
-            // if king is in check, remove from list
     }
 
+    private Collection<ChessMove> enPassantMove(ChessPosition capturingPawnPosition) {
+        Collection<ChessMove> move = new HashSet<>();
+        ChessPiece capturingPawn = currentBoard.getPiece(capturingPawnPosition);
+        if(capturingPawn == null ||
+                capturingPawn.getPieceType() != ChessPiece.PieceType.PAWN ||
+                capturingPawn.getTeamColor() != currentTeamTurn) {
+            return move;
+        }
+        ChessPosition capturePosition = switch(currentTeamTurn) {
+            case WHITE -> new ChessPosition(enPassantPosition.getRow()+1, enPassantPosition.getColumn());
+            case BLACK -> new ChessPosition(enPassantPosition.getRow()-1, enPassantPosition.getColumn());
+        };
+        move.add(new ChessMove(capturingPawnPosition, capturePosition, null));
+        return move;
+    }
     /**
      * Makes a move in a chess game
      *
@@ -120,16 +147,37 @@ public class ChessGame {
             ChessPiece promotionPiece = new ChessPiece(thisPiece.getTeamColor(), move.getPromotionPiece());
             currentBoard.addPiece(move.getEndPosition(), promotionPiece);
         }
+
+        makeEnPassantMove(move);
+
         currentTeamTurn = switch(currentTeamTurn) {
             case BLACK -> TeamColor.WHITE;
             case WHITE -> TeamColor.BLACK;
         };
-        // throw InvalidMoveException if not turn
-        // throw InvalidMoveException if illegal move
-        // set white/black CanCastle variable if rook or king
-        // execute move
     }
+    private void makeEnPassantMove(ChessMove move) {
+        // capture
+        if(enPassantPosition != null) {
+            ChessPosition enPassantCapturePosition = switch (currentTeamTurn) {
+                case WHITE -> new ChessPosition(enPassantPosition.getRow() + 1, enPassantPosition.getColumn());
+                case BLACK -> new ChessPosition(enPassantPosition.getRow() - 1, enPassantPosition.getColumn());
+            };
+            if (enPassantOpen && Objects.equals(move.getEndPosition(), enPassantCapturePosition)) {
+                currentBoard.addPiece(enPassantPosition, null);
+            }
+        }
+        enPassantOpen = false;
 
+        // left open
+        int startRow = move.getStartPosition().getRow();
+        int endRow = move.getEndPosition().getRow();
+        if(((startRow == 2 && endRow == 4) || (startRow == 7 && endRow == 5))
+                &&
+                currentBoard.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN) {
+            enPassantOpen = true;
+            enPassantPosition = move.getEndPosition();
+        }
+    }
     /**
      * Determines if the given team is in check
      *
@@ -153,6 +201,24 @@ public class ChessGame {
         if(!isInCheck(teamColor)) {
             return false;
         }
+        return teamCannotPlay(teamColor);
+    }
+
+    /**
+     * Determines if the given team is in stalemate, which here is defined as having
+     * no valid moves while not in check.
+     *
+     * @param teamColor which team to check for stalemate
+     * @return True if the specified team is in stalemate, otherwise false
+     */
+    public boolean isInStalemate(TeamColor teamColor) {
+        if(isInCheck(teamColor)) {
+            return false;
+        }
+        return teamCannotPlay(teamColor);
+    }
+
+    private boolean teamCannotPlay(TeamColor teamColor) {
         Collection<ChessMove> possibleMoves = new HashSet<>();
         for(int row = 1; row <= 8; row++) {
             for(int col = 1; col <= 8; col++) {
@@ -170,17 +236,6 @@ public class ChessGame {
             }
         }
         return true;
-    }
-
-    /**
-     * Determines if the given team is in stalemate, which here is defined as having
-     * no valid moves while not in check.
-     *
-     * @param teamColor which team to check for stalemate
-     * @return True if the specified team is in stalemate, otherwise false
-     */
-    public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
     }
 
     /**
