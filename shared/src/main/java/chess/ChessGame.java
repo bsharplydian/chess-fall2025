@@ -4,6 +4,7 @@ import chess.moveCalculators.CheckCalculator;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -25,6 +26,23 @@ public class ChessGame {
         currentBoard = new ChessBoard(copy.currentBoard);
         whiteCanCastle = copy.whiteCanCastle;
         blackCanCastle = copy.blackCanCastle;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return whiteCanCastle == chessGame.whiteCanCastle && blackCanCastle == chessGame.blackCanCastle && currentTeamTurn == chessGame.currentTeamTurn && Objects.equals(currentBoard, chessGame.currentBoard);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(currentTeamTurn, currentBoard, whiteCanCastle, blackCanCastle);
     }
 
     /**
@@ -98,6 +116,10 @@ public class ChessGame {
             throw new InvalidMoveException("illegal move");
         }
         currentBoard.movePiece(move, currentBoard.getPiece(move.getStartPosition()));
+        if(move.getPromotionPiece() != null) {
+            ChessPiece promotionPiece = new ChessPiece(thisPiece.getTeamColor(), move.getPromotionPiece());
+            currentBoard.addPiece(move.getEndPosition(), promotionPiece);
+        }
         currentTeamTurn = switch(currentTeamTurn) {
             case BLACK -> TeamColor.WHITE;
             case WHITE -> TeamColor.BLACK;
