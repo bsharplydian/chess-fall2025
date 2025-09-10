@@ -101,7 +101,7 @@ public class ChessGame {
             moves.addAll(getEnPassantMove(rightPawnPosition));
         }
         if(thisPiece.getPieceType() == ChessPiece.PieceType.KING) {
-            moves.addAll(getCastleMoves());
+            moves.addAll(getCastleMoves(thisPiece.getTeamColor()));
         }
         Collection<ChessMove> invalidMoves = new HashSet<>();
         for(ChessMove move : moves) {
@@ -133,9 +133,9 @@ public class ChessGame {
         return move;
     }
 
-    private Collection<ChessMove> getCastleMoves() {
+    private Collection<ChessMove> getCastleMoves(TeamColor teamColor) {
         Collection<ChessMove> moves = new HashSet<>();
-        ChessPosition kingPosition = currentBoard.getKingPosition(currentTeamTurn);
+        ChessPosition kingPosition = currentBoard.getKingPosition(teamColor);
         ChessPosition castlePositionA = new ChessPosition(kingPosition.getRow(), kingPosition.getColumn()-2);
         ChessPosition castlePositionH = new ChessPosition(kingPosition.getRow(), kingPosition.getColumn()+2);
         if(canCastleA(kingPosition)) {
@@ -148,8 +148,9 @@ public class ChessGame {
     }
 
     private boolean canCastleA(ChessPosition kingPosition) {
+        TeamColor teamColor = currentBoard.getPiece(kingPosition).getTeamColor();
         // neither piece has moved
-        switch(currentTeamTurn) {
+        switch(teamColor) {
             case WHITE -> {
                 if(whiteCastleAMoved) {
                     return false;
@@ -168,14 +169,14 @@ public class ChessGame {
                 return false;
             }
             //not in check currently
-            CheckCalculator checkCalculator = new CheckCalculator(this.currentBoard, currentTeamTurn, kingPosition);
+            CheckCalculator checkCalculator = new CheckCalculator(this.currentBoard, teamColor, kingPosition);
             if(checkCalculator.isInCheck()) {
                 return false;
             }
             //not in check for intermediate spaces
             ChessGame previewGame = new ChessGame(this);
             previewGame.currentBoard.movePiece(new ChessMove(kingPosition, intermediatePosition, null), currentBoard.getPiece(kingPosition));
-            checkCalculator = new CheckCalculator(previewGame.currentBoard, currentTeamTurn, previewGame.currentBoard.getKingPosition(currentTeamTurn));
+            checkCalculator = new CheckCalculator(previewGame.currentBoard, teamColor, previewGame.currentBoard.getKingPosition(teamColor));
             if(checkCalculator.isInCheck()) {
                 return false;
             }
@@ -185,8 +186,9 @@ public class ChessGame {
         return true;
     }
     private boolean canCastleH(ChessPosition kingPosition) {
+        TeamColor teamColor = currentBoard.getPiece(kingPosition).getTeamColor();
         // neither piece has moved
-        switch(currentTeamTurn) {
+        switch(teamColor) {
             case WHITE -> {
                 if(whiteCastleHMoved) {
                     return false;
@@ -205,13 +207,13 @@ public class ChessGame {
                 return false;
             }
             //not in check currently
-            CheckCalculator checkCalculator = new CheckCalculator(this.currentBoard, currentTeamTurn, kingPosition);
+            CheckCalculator checkCalculator = new CheckCalculator(this.currentBoard, teamColor, kingPosition);
             if(checkCalculator.isInCheck()) {
                 return false;
             }
             ChessGame previewGame = new ChessGame(this);
             previewGame.currentBoard.movePiece(new ChessMove(kingPosition, intermediatePosition, null), currentBoard.getPiece(kingPosition));
-            checkCalculator = new CheckCalculator(previewGame.currentBoard, currentTeamTurn, previewGame.currentBoard.getKingPosition(currentTeamTurn));
+            checkCalculator = new CheckCalculator(previewGame.currentBoard, teamColor, previewGame.currentBoard.getKingPosition(teamColor));
             if(checkCalculator.isInCheck()) {
                 return false;
             }
@@ -246,8 +248,39 @@ public class ChessGame {
             ChessPiece promotionPiece = new ChessPiece(thisPiece.getTeamColor(), move.getPromotionPiece());
             currentBoard.addPiece(move.getEndPosition(), promotionPiece);
         }
-
+        if(thisPiece.getPieceType() == ChessPiece.PieceType.KING) {
+            switch(currentTeamTurn) {
+                case WHITE -> {
+                    whiteCastleAMoved = true;
+                    whiteCastleHMoved = true;
+                }
+                case BLACK -> {
+                    blackCastleAMoved = true;
+                    blackCastleHMoved = true;
+                }
+            }
+        }
+        if(thisPiece.getPieceType() == ChessPiece.PieceType.ROOK) {
+            int column = move.getStartPosition().getColumn();
+            switch(currentTeamTurn) {
+                case WHITE -> {
+                    if (column == 1) {
+                        whiteCastleAMoved = true;
+                    } else if(column == 8) {
+                        whiteCastleHMoved = true;
+                    }
+                }
+                case BLACK -> {
+                    if (column == 1) {
+                        blackCastleAMoved = true;
+                    } else if(column == 8) {
+                        blackCastleHMoved = true;
+                    }
+                }
+            }
+        }
         makeEnPassantMove(move);
+
         currentTeamTurn = switch(currentTeamTurn) {
             case BLACK -> TeamColor.WHITE;
             case WHITE -> TeamColor.BLACK;
