@@ -249,6 +249,14 @@ public class ChessGame {
             currentBoard.addPiece(move.getEndPosition(), promotionPiece);
         }
         if(thisPiece.getPieceType() == ChessPiece.PieceType.KING) {
+            if(move.getEndPosition().getColumn() - move.getStartPosition().getColumn() == 2) {
+                currentBoard.addPiece(new ChessPosition(move.getStartPosition().getRow(), 8), null);
+                currentBoard.addPiece(new ChessPosition(move.getStartPosition().getRow(), 6), new ChessPiece(thisPiece.getTeamColor(), ChessPiece.PieceType.ROOK));
+            }
+            if(move.getEndPosition().getColumn() - move.getStartPosition().getColumn() == -2) {
+                currentBoard.addPiece(new ChessPosition(move.getStartPosition().getRow(), 1), null);
+                currentBoard.addPiece(new ChessPosition(move.getStartPosition().getRow(), 4), new ChessPiece(thisPiece.getTeamColor(), ChessPiece.PieceType.ROOK));
+            }
             switch(currentTeamTurn) {
                 case WHITE -> {
                     whiteCastleAMoved = true;
