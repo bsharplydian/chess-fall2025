@@ -53,7 +53,12 @@ public class CastleTracker {
         if (sideMoved) {
             return false;
         }
-
+        if(kingRow != 1 && kingRow != 8) {
+            return false;
+        }
+        if(kingPosition.getColumn() != 5) {
+            return false;
+        }
         for (int col : emptyColumns) {
             //all intermediate spaces empty
             ChessPosition intermediatePosition = new ChessPosition(kingRow, col);

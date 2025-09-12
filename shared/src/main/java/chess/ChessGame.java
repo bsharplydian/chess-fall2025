@@ -15,8 +15,8 @@ import java.util.Objects;
 public class ChessGame {
     private TeamColor currentTeamTurn;
     private ChessBoard currentBoard = new ChessBoard();
-    private CastleTracker blackCastleTracker;
-    private CastleTracker whiteCastleTracker;
+    private final CastleTracker blackCastleTracker;
+    private final CastleTracker whiteCastleTracker;
     private boolean enPassantOpen = false;
     private ChessPosition enPassantPosition;
     public ChessGame() {
@@ -131,7 +131,6 @@ public class ChessGame {
         return move;
     }
 
-
     /**
      * Makes a move in a chess game
      *
@@ -165,6 +164,7 @@ public class ChessGame {
             case WHITE -> TeamColor.BLACK;
         };
     }
+
     private void handleCastleMove(ChessMove move, ChessPiece thisPiece) {
         if(thisPiece.getPieceType() == ChessPiece.PieceType.KING) {
             int kingRow = move.getStartPosition().getRow();
@@ -189,6 +189,7 @@ public class ChessGame {
             }
         }
     }
+
     private void handleEnPassantMove(ChessMove move) {
         // capture
         if(enPassantPosition != null) {
@@ -211,6 +212,7 @@ public class ChessGame {
             enPassantPosition = move.getEndPosition();
         }
     }
+
     /**
      * Determines if the given team is in check
      *
