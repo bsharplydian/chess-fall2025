@@ -23,7 +23,7 @@ public abstract class LineCalculator implements MovementCalculator {
         W,
         NW
     }
-    public static Direction[] DIAGONALS = new Direction[]{
+    public static final Direction[] DIAGONALS = new Direction[]{
             Direction.NE,
             Direction.SE,
             Direction.SW,

@@ -12,8 +12,8 @@ public class CastleTracker {
     private final int kingRow;
     boolean kingSideMoved = false;
     boolean queenSideMoved = false;
-    final int[] QUEEN_EMPTY_COLUMNS = new int[]{2, 3, 4};
-    final int[] KING_EMPTY_COLUMNS = new int[]{6, 7};
+    static final int[] QUEEN_EMPTY_COLUMNS = new int[]{2, 3, 4};
+    static final int[] KING_EMPTY_COLUMNS = new int[]{6, 7};
 
     public CastleTracker(ChessGame game, ChessGame.TeamColor teamColor) {
         this.game = game;
