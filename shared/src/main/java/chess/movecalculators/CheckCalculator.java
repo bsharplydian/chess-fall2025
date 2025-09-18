@@ -1,14 +1,14 @@
-package chess.moveCalculators;
+package chess.movecalculators;
 
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
-import static chess.moveCalculators.LineCalculator.CARDINALS;
-import static chess.moveCalculators.LineCalculator.DIAGONALS;
-import static chess.moveCalculators.KnightCalculator.KNIGHT_MOVES;
-import static chess.moveCalculators.KingCalculator.KING_MOVES;
+import static chess.movecalculators.LineCalculator.CARDINALS;
+import static chess.movecalculators.LineCalculator.DIAGONALS;
+import static chess.movecalculators.KnightCalculator.KNIGHT_MOVES;
+import static chess.movecalculators.KingCalculator.KING_MOVES;
 
 public class CheckCalculator {
     private final ChessBoard board;

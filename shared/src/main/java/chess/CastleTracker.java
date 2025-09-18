@@ -1,6 +1,6 @@
 package chess;
 
-import chess.moveCalculators.CheckCalculator;
+import chess.movecalculators.CheckCalculator;
 
 import java.util.Collection;
 import java.util.HashSet;

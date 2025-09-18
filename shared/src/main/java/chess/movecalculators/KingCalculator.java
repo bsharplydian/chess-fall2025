@@ -1,4 +1,4 @@
-package chess.moveCalculators;
+package chess.movecalculators;
 
 public class KingCalculator extends SetCalculator {
     static final int[][] KING_MOVES = new int[][]{
