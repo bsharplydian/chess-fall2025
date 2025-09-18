@@ -6,7 +6,13 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public abstract class LineCalculator implements MovementCalculator {
-    public abstract Collection<ChessMove> getPieceMoves(ChessBoard board, ChessPosition myPosition);
+    public Collection<ChessMove> getPieceMoves(ChessBoard board, ChessPosition myPosition) {
+        ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
+        return new HashSet<>(getMovesByLines(board, myPosition,
+                getDirections(),
+                myColor));
+    }
+    public abstract Direction[] getDirections();
     public enum Direction {
         N,
         NE,

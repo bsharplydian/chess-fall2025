@@ -7,7 +7,12 @@ import java.util.HashSet;
 
 public abstract class SetCalculator implements MovementCalculator {
 
-    public abstract Collection<ChessMove> getPieceMoves(ChessBoard board, ChessPosition myPosition);
+    public Collection<ChessMove> getPieceMoves(ChessBoard board, ChessPosition myPosition) {
+        ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
+        return new HashSet<>(getMovesBySet(board, myPosition, getOffsets(), myColor));
+    }
+
+    public abstract int[][] getOffsets();
 
     protected Collection<ChessMove> getMovesBySet(ChessBoard board, ChessPosition myPosition,
                                                 int[][] relativePositions, ChessGame.TeamColor myColor) {
