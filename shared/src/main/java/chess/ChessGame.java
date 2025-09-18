@@ -280,6 +280,8 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         currentBoard = board;
+        whiteCastleTracker.updateKingPosition();
+        blackCastleTracker.updateKingPosition();
     }
 
     /**

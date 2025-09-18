@@ -8,7 +8,7 @@ import java.util.HashSet;
 public class CastleTracker {
     private final ChessGame game;
     private final ChessGame.TeamColor teamColor;
-    private final ChessPosition kingPosition;
+    private ChessPosition kingPosition;
     private final int kingRow;
     boolean kingSideMoved = false;
     boolean queenSideMoved = false;
@@ -18,7 +18,7 @@ public class CastleTracker {
     public CastleTracker(ChessGame game, ChessGame.TeamColor teamColor) {
         this.game = game;
         this.teamColor = teamColor;
-        this.kingPosition = game.getBoard().getKingPosition(teamColor);
+        updateKingPosition();
         this.kingRow = switch(teamColor) {
             case WHITE -> 1;
             case BLACK -> 8;
@@ -92,19 +92,8 @@ public class CastleTracker {
         queenSideMoved = true;
         kingSideMoved = true;
     }
-    public boolean getKingSideMoved() {
-        return kingSideMoved;
-    }
 
-    public void setKingSideMoved(boolean kingSideMoved) {
-        this.kingSideMoved = kingSideMoved;
-    }
-
-    public boolean getQueenSideMoved() {
-        return queenSideMoved;
-    }
-
-    public void setQueenSideMoved(boolean queenSideMoved) {
-        this.queenSideMoved = queenSideMoved;
+    public void updateKingPosition() {
+        kingPosition = game.getBoard().getKingPosition(teamColor);
     }
 }
