@@ -2,10 +2,12 @@ package server;
 
 import io.javalin.*;
 import io.javalin.http.Context;
+import service.UserService;
 import service.handlers.*;
 
 public class Server {
-    UserJsonHandler userHandler = new UserJsonHandler();
+    UserService userService = new UserService();
+    UserJsonHandler userHandler = new UserJsonHandler(userService);
     GameJsonHandler gameHandler = new GameJsonHandler();
     private final Javalin javalin;
 
@@ -23,7 +25,7 @@ public class Server {
     }
 
     private void register(Context context) {
-
+        context.json(userHandler.register(context.body()));
     }
     private void login(Context context) {
 
