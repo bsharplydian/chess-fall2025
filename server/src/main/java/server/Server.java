@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.AlreadyTakenException;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.UserService;
@@ -25,7 +26,11 @@ public class Server {
     }
 
     private void register(Context context) {
-        context.json(userHandler.register(context.body()));
+        try {
+            context.json(userHandler.register(context.body()));
+        } catch (AlreadyTakenException e) {
+            context.status(401);
+        }
     }
     private void login(Context context) {
 
