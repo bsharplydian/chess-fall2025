@@ -38,10 +38,10 @@ public class Server {
         }
     }
     private void login(Context context) {
-
+        context.json(userHandler.login(context.body()));
     }
     private void logout(Context context) {
-
+        userHandler.logout(combineAuthAndBody(context));
     }
     private void listGames(Context context) {
 
@@ -54,6 +54,18 @@ public class Server {
     }
     private void clear(Context context) {
 
+    }
+
+    private String combineAuthAndBody(Context context) {
+        context.header("authorization");
+        if(context.body().isEmpty()) {
+            return String.format("""
+                {"authToken": "%s"}
+                """, context.header("authorization"));
+        }
+        return String.format("""
+                {"authToken": "%s", %s}
+                """, context.header("authorization"), context.body().substring(1, context.body().length()-2));
     }
     private String buildErrorMessage(Exception e) {
         return String.format("""
