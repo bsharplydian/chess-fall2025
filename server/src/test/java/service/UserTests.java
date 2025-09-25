@@ -1,6 +1,6 @@
 package service;
 
-import dataaccess.AlreadyTakenException;
+import dataaccess.ForbiddenException;
 import org.junit.jupiter.api.*;
 import service.requests.RegisterRequest;
 import service.results.RegisterResult;
@@ -28,7 +28,7 @@ public class UserTests {
     @DisplayName("register throws exception if username exists")
     public void registerAlreadyExists() {
         RegisterRequest request = new RegisterRequest("jim", "mynameisalsojim", "jim@jim2.com");
-        Assertions.assertThrows(AlreadyTakenException.class, () -> userService.register(request));
+        Assertions.assertThrows(ForbiddenException.class, () -> userService.register(request));
     }
 
     // login success
@@ -37,4 +37,6 @@ public class UserTests {
 
     // logout success
     // logout unauthorized
+
+    // create game success
 }

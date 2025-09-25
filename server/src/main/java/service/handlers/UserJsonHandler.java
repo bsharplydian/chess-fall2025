@@ -1,7 +1,8 @@
 package service.handlers;
 
 import com.google.gson.Gson;
-import dataaccess.AlreadyTakenException;
+import dataaccess.BadRequestException;
+import dataaccess.ForbiddenException;
 import service.UserService;
 import service.requests.*;
 
@@ -12,7 +13,7 @@ public class UserJsonHandler {
         this.userService = userService;
     }
 
-    public String register(String registerJson) throws AlreadyTakenException {
+    public String register(String registerJson) throws ForbiddenException, BadRequestException {
         RegisterRequest request = gson.fromJson(registerJson, RegisterRequest.class);
         System.out.print(request);
         return gson.toJson(userService.register(request));

@@ -1,6 +1,7 @@
 package server;
 
-import dataaccess.AlreadyTakenException;
+import dataaccess.BadRequestException;
+import dataaccess.ForbiddenException;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.UserService;
@@ -28,8 +29,12 @@ public class Server {
     private void register(Context context) {
         try {
             context.json(userHandler.register(context.body()));
-        } catch (AlreadyTakenException e) {
-            context.status(401);
+        } catch (ForbiddenException e) {
+            context.status(403);
+            context.json(buildErrorMessage(e));
+        } catch (BadRequestException e) {
+            context.status(400);
+            context.json(buildErrorMessage(e));
         }
     }
     private void login(Context context) {
@@ -50,7 +55,10 @@ public class Server {
     private void clear(Context context) {
 
     }
-
+    private String buildErrorMessage(Exception e) {
+        return String.format("""
+                    {"message": "%s"}""", e.getMessage());
+    }
     public int run(int desiredPort) {
         javalin.start(desiredPort);
         return javalin.port();
