@@ -1,9 +1,7 @@
 package service;
 
-import dataaccess.BadRequestException;
-import dataaccess.ForbiddenException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
+import dataaccess.exceptions.*;
 import model.AuthData;
 import model.UserData;
 import service.requests.LoginRequest;
@@ -37,13 +35,14 @@ public class UserService {
 
     public LoginResult login(LoginRequest request) {
         if(request.username().isBlank() || request.password().isBlank()) {
-            //bad request
+            throw new BadRequestException("Error: bad request");
         }
         if(userDAO.getUser(request.username()) == null) {
-            // unauthorized: username doesn't exist
+            throw new UnauthorizedException("Error: user doesn't exist");
         }
         if(!Objects.equals(userDAO.getUser(request.username()).password(), request.password())) {
-            // unauthorized: wrong password
+            // TODO: add password security
+            throw new UnauthorizedException("Error: incorrect password");
         }
         String authToken = createToken();
         authDAO.createAuth(new AuthData(authToken, request.username()));
@@ -52,7 +51,7 @@ public class UserService {
 
     public void logout(LogoutRequest request) {
         if(authDAO.getAuth(request.authToken()) == null) {
-            //unauthorized exception
+            throw new UnauthorizedException("Error: unauthorized");
         }
         authDAO.removeAuth(request.authToken());
     }

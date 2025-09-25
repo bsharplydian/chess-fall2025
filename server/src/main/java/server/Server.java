@@ -1,7 +1,6 @@
 package server;
 
-import dataaccess.BadRequestException;
-import dataaccess.ForbiddenException;
+import dataaccess.exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.UserService;
@@ -38,10 +37,23 @@ public class Server {
         }
     }
     private void login(Context context) {
-        context.json(userHandler.login(context.body()));
+        try {
+            context.json(userHandler.login(context.body()));
+        } catch (UnauthorizedException e) {
+            context.status(401);
+            context.json(buildErrorMessage(e));
+        } catch (BadRequestException e) {
+            context.status(400);
+            context.json(buildErrorMessage(e));
+        }
     }
     private void logout(Context context) {
-        userHandler.logout(combineAuthAndBody(context));
+        try {
+            userHandler.logout(combineAuthAndBody(context));
+        } catch (UnauthorizedException e) {
+            context.status(401);
+            context.json(buildErrorMessage(e));
+        }
     }
     private void listGames(Context context) {
 

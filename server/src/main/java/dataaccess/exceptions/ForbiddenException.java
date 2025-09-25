@@ -1,4 +1,4 @@
-package dataaccess;
+package dataaccess.exceptions;
 
 public class ForbiddenException extends RuntimeException {
     public ForbiddenException(String message) {

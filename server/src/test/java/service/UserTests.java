@@ -1,6 +1,6 @@
 package service;
 
-import dataaccess.ForbiddenException;
+import dataaccess.exceptions.ForbiddenException;
 import org.junit.jupiter.api.*;
 import service.requests.RegisterRequest;
 import service.results.RegisterResult;
