@@ -46,7 +46,7 @@ public class UserService {
         }
         String authToken = createToken();
         authDAO.createAuth(new AuthData(authToken, request.username()));
-        return new LoginResult(authToken);
+        return new LoginResult(request.username(), authToken);
     }
 
     public void logout(LogoutRequest request) throws UnauthorizedException {
@@ -54,6 +54,11 @@ public class UserService {
             throw new UnauthorizedException("Error: unauthorized");
         }
         authDAO.removeAuth(request.authToken());
+    }
+
+    public void clear() {
+        authDAO.removeAll();
+        userDAO.removeAll();
     }
 
     private String createToken() {

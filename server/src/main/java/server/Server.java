@@ -3,11 +3,13 @@ package server;
 import dataaccess.exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
+import service.GameService;
 import service.UserService;
 import service.handlers.*;
 
 public class Server {
     UserService userService = new UserService();
+    GameService gameService = new GameService();
     UserJsonHandler userHandler = new UserJsonHandler(userService);
     GameJsonHandler gameHandler = new GameJsonHandler();
     private final Javalin javalin;
@@ -65,7 +67,8 @@ public class Server {
 
     }
     private void clear(Context context) {
-
+        userService.clear();
+        gameService.clear();
     }
 
     private String combineAuthAndBody(Context context) {
