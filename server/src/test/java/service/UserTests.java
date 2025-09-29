@@ -93,7 +93,4 @@ public class UserTests {
         LoginRequest request = new LoginRequest("jim", "1234");
         Assertions.assertThrows(UnauthorizedException.class, () -> userService.login(request));
     }
-
-
-    // create game success
 }
