@@ -33,7 +33,7 @@ public class UserService {
         return new RegisterResult(request.username(), authToken);
     }
 
-    public LoginResult login(LoginRequest request) {
+    public LoginResult login(LoginRequest request) throws BadRequestException, UnauthorizedException {
         if(request.username().isBlank() || request.password().isBlank()) {
             throw new BadRequestException("Error: bad request");
         }
@@ -49,7 +49,7 @@ public class UserService {
         return new LoginResult(authToken);
     }
 
-    public void logout(LogoutRequest request) {
+    public void logout(LogoutRequest request) throws UnauthorizedException {
         if(authDAO.getAuth(request.authToken()) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
