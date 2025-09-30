@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.*;
 import dataaccess.MemoryGameDAO;
 import service.requests.CreateGameRequest;
 import service.requests.JoinGameRequest;
@@ -8,7 +9,12 @@ import service.results.CreateGameResult;
 import service.results.ListGamesResult;
 
 public class GameService {
-    MemoryGameDAO gameDAO = new MemoryGameDAO();
+    AuthDAO authDAO;
+    GameDAO gameDAO;
+    public GameService(AuthDAO authDAO, GameDAO gameDAO) {
+        this.authDAO = authDAO;
+        this.gameDAO = gameDAO;
+    }
     public ListGamesResult listGames(ListGamesRequest request) {
         throw new RuntimeException("not implemented");
     }

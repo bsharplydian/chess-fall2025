@@ -1,5 +1,8 @@
 package server;
 
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryGameDAO;
+import dataaccess.MemoryUserDAO;
 import dataaccess.exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -8,8 +11,11 @@ import service.UserService;
 import service.handlers.*;
 
 public class Server {
-    UserService userService = new UserService();
-    GameService gameService = new GameService();
+    MemoryAuthDAO authDAO = new MemoryAuthDAO();
+    MemoryUserDAO userDAO = new MemoryUserDAO();
+    MemoryGameDAO gameDAO = new MemoryGameDAO();
+    UserService userService = new UserService(authDAO, userDAO);
+    GameService gameService = new GameService(authDAO, gameDAO);
     UserJsonHandler userHandler = new UserJsonHandler(userService);
     GameJsonHandler gameHandler = new GameJsonHandler();
     private final Javalin javalin;

@@ -14,9 +14,11 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {
-    MemoryAuthDAO authDAO = new MemoryAuthDAO();
-    MemoryUserDAO userDAO = new MemoryUserDAO();
-    public UserService() {
+    AuthDAO authDAO;
+    UserDAO userDAO;
+    public UserService(AuthDAO authDAO, UserDAO userDAO) {
+        this.authDAO = authDAO;
+        this.userDAO = userDAO;
     }
     public RegisterResult register(RegisterRequest request) throws ForbiddenException, BadRequestException {
         if(request.username().isBlank() || request.password().isBlank() || request.email().isBlank()) {

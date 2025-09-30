@@ -1,5 +1,7 @@
 package service;
 
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryUserDAO;
 import dataaccess.exceptions.ForbiddenException;
 import dataaccess.exceptions.UnauthorizedException;
 import model.UserData;
@@ -18,7 +20,7 @@ public class UserTests {
     }
     @BeforeEach
     void resetService() {
-        userService = new UserService();
+        userService = new UserService(new MemoryAuthDAO(), new MemoryUserDAO());
     }
     @Test
     @DisplayName("register creates a user")

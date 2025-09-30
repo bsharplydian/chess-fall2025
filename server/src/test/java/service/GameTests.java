@@ -12,8 +12,7 @@ public class GameTests {
 
     @BeforeEach
     void resetService() {
-        userService = new UserService();
-        gameService = new GameService();
+
 
     }
 
