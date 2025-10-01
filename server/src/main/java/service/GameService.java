@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.*;
-import dataaccess.MemoryGameDAO;
 import service.requests.CreateGameRequest;
 import service.requests.JoinGameRequest;
 import service.requests.ListGamesRequest;
