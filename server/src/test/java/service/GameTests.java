@@ -3,6 +3,7 @@ package service;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
+import dataaccess.exceptions.ForbiddenException;
 import dataaccess.exceptions.UnauthorizedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,18 +82,56 @@ public class GameTests {
     }
 
     @Test
-    @DisplayName("join game success (white)")
+    @DisplayName("join game success")
     public void JoinGameSuccess() {
         CreateGameRequest createRequest = new CreateGameRequest(authToken1, "newGame");
         int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(createRequest)).gameID();
 
-        JoinGameRequest request = new JoinGameRequest(authToken1, chess.ChessGame.TeamColor.WHITE, gameID);
-        Assertions.assertDoesNotThrow(() -> gameService.joinGame(request));
+        JoinGameRequest requestWhite = new JoinGameRequest(authToken1, chess.ChessGame.TeamColor.WHITE, gameID);
+        Assertions.assertDoesNotThrow(() -> gameService.joinGame(requestWhite));
+        JoinGameRequest requestBlack = new JoinGameRequest(authToken2, chess.ChessGame.TeamColor.BLACK, gameID);
+        Assertions.assertDoesNotThrow(() -> gameService.joinGame(requestBlack));
+
         Assertions.assertNotNull(gameService.gameDAO.getGame(gameID).whiteUser());
+        Assertions.assertNotNull(gameService.gameDAO.getGame(gameID).blackUser());
     }
-    //join game taken (white)
-    //join game success (black)
-    //join game taken (black)
-    //join game unauthorized
+
+    @Test
+    @DisplayName("join game taken (white)")
+    public void JoinGameTakenW() {
+        CreateGameRequest createRequest = new CreateGameRequest(authToken1, "newGame");
+        int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(createRequest)).gameID();
+
+        JoinGameRequest requestWhite = new JoinGameRequest(authToken1, chess.ChessGame.TeamColor.WHITE, gameID);
+        gameService.joinGame(requestWhite);
+
+        JoinGameRequest requestWhite2 = new JoinGameRequest(authToken2, chess.ChessGame.TeamColor.WHITE, gameID);
+        Assertions.assertThrows(ForbiddenException.class, () -> gameService.joinGame(requestWhite2));
+    }
+
+    @Test
+    @DisplayName("join game taken (black)")
+    public void JoinGameTakenB() {
+        CreateGameRequest createRequest = new CreateGameRequest(authToken1, "newGame");
+        int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(createRequest)).gameID();
+
+        JoinGameRequest requestBlack = new JoinGameRequest(authToken1, chess.ChessGame.TeamColor.BLACK, gameID);
+        gameService.joinGame(requestBlack);
+
+        JoinGameRequest requestBlack2 = new JoinGameRequest(authToken2, chess.ChessGame.TeamColor.BLACK, gameID);
+        Assertions.assertThrows(ForbiddenException.class, () -> gameService.joinGame(requestBlack2));
+    }
+
+    @Test
+    @DisplayName("join game unauthorized")
+    public void JoinGameNoAuth() {
+        CreateGameRequest createRequest = new CreateGameRequest(authToken1, "newGame");
+        int gameID = gameService.createGame(createRequest).gameID();
+
+        JoinGameRequest request = new JoinGameRequest("", chess.ChessGame.TeamColor.WHITE, gameID);
+        Assertions.assertThrows(UnauthorizedException.class, () -> gameService.joinGame(request));
+
+        Assertions.assertNull(gameService.gameDAO.getGame(gameID).whiteUser());
+    }
 
 }
