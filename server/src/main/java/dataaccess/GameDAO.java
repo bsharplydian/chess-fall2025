@@ -14,4 +14,6 @@ public interface GameDAO {
     void updateGame(GameData gameData);
 
     ArrayList<GameData> getGames();
+
+    boolean gameExists(int gameID);
 }

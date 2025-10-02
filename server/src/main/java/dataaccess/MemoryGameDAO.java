@@ -3,21 +3,25 @@ package dataaccess;
 import model.GameData;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MemoryGameDAO implements GameDAO {
+    Map<Integer, GameData> games = new HashMap<>();
+
     @Override
     public void removeAll() {
-        throw new RuntimeException("not implemented");
+        games.clear();
     }
 
     @Override
-    public GameData getGame(int GameID) {
-        throw new RuntimeException("not implemented");
+    public GameData getGame(int gameID) {
+        return games.get(gameID);
     }
 
     @Override
     public void addGame(GameData gameData) {
-        throw new RuntimeException("not implemented");
+        games.put(gameData.gameID(), gameData);
     }
 
     @Override
@@ -28,5 +32,10 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public ArrayList<GameData> getGames() {
         throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public boolean gameExists(int gameID) {
+        return getGame(gameID) != null;
     }
 }
