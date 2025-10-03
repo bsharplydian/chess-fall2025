@@ -26,7 +26,7 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public void updateGame(GameData gameData) {
-        throw new RuntimeException("not implemented");
+        games.put(gameData.gameID(), gameData);
     }
 
     @Override

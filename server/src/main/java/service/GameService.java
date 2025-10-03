@@ -2,6 +2,8 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.*;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.ForbiddenException;
 import dataaccess.exceptions.UnauthorizedException;
 import model.GameData;
 import service.requests.CreateGameRequest;
@@ -35,7 +37,23 @@ public class GameService {
     }
 
     public void joinGame(JoinGameRequest request) {
-        throw new RuntimeException("not implemented");
+        if(authDAO.getAuth(request.authToken()) == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+        if(!gameDAO.gameExists(request.gameID())) {
+            throw new BadRequestException("Error: bad request");
+        }
+        GameData existingData = gameDAO.getGame(request.gameID());
+        if((request.playerColor() == ChessGame.TeamColor.WHITE && existingData.whiteUser() != null) ||
+        request.playerColor() == ChessGame.TeamColor.BLACK && existingData.blackUser() != null) {
+            throw new ForbiddenException("Error: already taken");
+        }
+        String username = authDAO.getAuth(request.authToken()).username();
+        GameData newData = switch(request.playerColor()){
+            case WHITE -> new GameData(existingData.gameID(), username, existingData.blackUser(), existingData.gameName(), existingData.game());
+            case BLACK -> new GameData(existingData.gameID(), existingData.whiteUser(), username, existingData.gameName(), existingData.game());
+        };
+        gameDAO.updateGame(newData);
     }
 
     public void clear() {
