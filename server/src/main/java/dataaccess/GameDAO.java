@@ -3,6 +3,7 @@ package dataaccess;
 import model.GameData;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 public interface GameDAO {
     void removeAll();
@@ -13,7 +14,7 @@ public interface GameDAO {
 
     void updateGame(GameData gameData);
 
-    ArrayList<GameData> getGames();
+    Collection<GameData> getGames();
 
     boolean gameExists(int gameID);
 }

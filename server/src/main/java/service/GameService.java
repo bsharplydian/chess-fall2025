@@ -22,7 +22,10 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
     public ListGamesResult listGames(ListGamesRequest request) {
-        throw new RuntimeException("not implemented");
+        if(authDAO.getAuth(request.authToken()) == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+        return new ListGamesResult(gameDAO.getGames());
     }
 
     public CreateGameResult createGame(CreateGameRequest request) {

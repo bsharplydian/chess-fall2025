@@ -3,6 +3,7 @@ package dataaccess;
 import model.GameData;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,8 +31,8 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public ArrayList<GameData> getGames() {
-        throw new RuntimeException("not implemented");
+    public Collection<GameData> getGames() {
+        return games.values();
     }
 
     @Override
