@@ -35,7 +35,7 @@ public class Server {
 
     private void register(Context context) {
         try {
-            context.json(userHandler.register(context.body()));
+            context.json(userHandler.register(context));
         } catch (ForbiddenException e) {
             context.status(403);
             context.json(buildErrorMessage(e));
@@ -46,7 +46,7 @@ public class Server {
     }
     private void login(Context context) {
         try {
-            context.json(userHandler.login(context.body()));
+            context.json(userHandler.login(context));
         } catch (UnauthorizedException e) {
             context.status(401);
             context.json(buildErrorMessage(e));
@@ -57,7 +57,7 @@ public class Server {
     }
     private void logout(Context context) {
         try {
-            userHandler.logout(combineAuthAndBody(context));
+            userHandler.logout(context);
         } catch (UnauthorizedException e) {
             context.status(401);
             context.json(buildErrorMessage(e));
@@ -65,7 +65,7 @@ public class Server {
     }
     private void listGames(Context context) {
         try {
-            context.json(gameHandler.listGames(combineAuthAndBody(context)));
+            context.json(gameHandler.listGames(context));
         } catch (UnauthorizedException e) {
             context.status(401);
             context.json(buildErrorMessage(e));
@@ -73,7 +73,7 @@ public class Server {
     }
     private void createGame(Context context) {
         try {
-            context.json(gameHandler.createGame(combineAuthAndBody(context)));
+            context.json(gameHandler.createGame(context));
         } catch (BadRequestException e) {
             context.status(400);
             context.json(buildErrorMessage(e));
@@ -83,24 +83,24 @@ public class Server {
         }
     }
     private void joinGame(Context context) {
-
+        try {
+            gameHandler.joinGame(context);
+        } catch(BadRequestException e) {
+            context.status(400);
+            context.json(buildErrorMessage(e));
+        } catch (UnauthorizedException e) {
+            context.status(401);
+            context.json(buildErrorMessage(e));
+        } catch (ForbiddenException e) {
+            context.status(403);
+            context.json(buildErrorMessage(e));
+        }
     }
     private void clear(Context context) {
         userService.clear();
         gameService.clear();
     }
 
-    private String combineAuthAndBody(Context context) {
-        context.header("authorization");
-        if(context.body().isEmpty()) {
-            return String.format("""
-                {"authToken": "%s"}
-                """, context.header("authorization"));
-        }
-        return String.format("""
-                {"authToken": "%s", %s}
-                """, context.header("authorization"), context.body().substring(1, context.body().length()-1));
-    }
     private String buildErrorMessage(Exception e) {
         return String.format("""
                     {"message": "%s"}""", e.getMessage());

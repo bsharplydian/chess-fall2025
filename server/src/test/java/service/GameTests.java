@@ -11,7 +11,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import service.requests.CreateGameRequest;
 import service.requests.JoinGameRequest;
-import service.requests.ListGamesRequest;
 import service.requests.RegisterRequest;
 import service.results.CreateGameResult;
 import service.results.ListGamesResult;
@@ -40,17 +39,17 @@ public class GameTests {
     @Test
     @DisplayName("create game success")
     public void CreateGameSuccess() {
-        CreateGameRequest request = new CreateGameRequest(authToken1, "newGame");
-        CreateGameResult result = Assertions.assertDoesNotThrow(() -> gameService.createGame(request));
+        CreateGameRequest request = new CreateGameRequest("newGame");
+        CreateGameResult result = Assertions.assertDoesNotThrow(() -> gameService.createGame(authToken1, request));
         Assertions.assertNotNull(gameService.gameDAO.getGame(result.gameID()));
     }
 
     @Test
     @DisplayName("create game unauthorized")
     public void CreateGameNoAuth() {
-        CreateGameRequest request = new CreateGameRequest("", "newGame");
+        CreateGameRequest request = new CreateGameRequest("newGame");
         Assertions.assertThrows(UnauthorizedException.class, () ->
-                gameService.createGame(request)
+                gameService.createGame("", request)
         );
         Assertions.assertEquals(0, gameService.gameDAO.getGames().size());
     }
@@ -58,13 +57,12 @@ public class GameTests {
     @Test
     @DisplayName("list games success")
     public void ListGamesSuccess() {
-        CreateGameRequest request1 = new CreateGameRequest(authToken1, "game1");
-        gameService.createGame(request1);
-        CreateGameRequest request2 = new CreateGameRequest(authToken1, "game2");
-        gameService.createGame(request2);
+        CreateGameRequest request1 = new CreateGameRequest("game1");
+        gameService.createGame(authToken1, request1);
+        CreateGameRequest request2 = new CreateGameRequest("game2");
+        gameService.createGame(authToken1, request2);
 
-        ListGamesRequest listRequest = new ListGamesRequest(authToken1);
-        ListGamesResult listResult = Assertions.assertDoesNotThrow(() -> gameService.listGames(listRequest));
+        ListGamesResult listResult = Assertions.assertDoesNotThrow(() -> gameService.listGames(authToken1));
 
         Assertions.assertEquals(2, listResult.games().size(), "listGames returned incorrect number of games");
     }
@@ -72,25 +70,24 @@ public class GameTests {
     @Test
     @DisplayName("list games unauthorized")
     public void ListGamesNoAuth() {
-        CreateGameRequest request1 = new CreateGameRequest(authToken1, "game1");
-        gameService.createGame(request1);
-        CreateGameRequest request2 = new CreateGameRequest(authToken1, "game2");
-        gameService.createGame(request2);
+        CreateGameRequest request1 = new CreateGameRequest("game1");
+        gameService.createGame(authToken1, request1);
+        CreateGameRequest request2 = new CreateGameRequest("game2");
+        gameService.createGame(authToken1, request2);
 
-        ListGamesRequest listRequest = new ListGamesRequest("");
-        Assertions.assertThrows(UnauthorizedException.class, () -> gameService.listGames(listRequest));
+        Assertions.assertThrows(UnauthorizedException.class, () -> gameService.listGames(""));
     }
 
     @Test
     @DisplayName("join game success")
     public void JoinGameSuccess() {
-        CreateGameRequest createRequest = new CreateGameRequest(authToken1, "newGame");
-        int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(createRequest)).gameID();
+        CreateGameRequest createRequest = new CreateGameRequest("newGame");
+        int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(authToken1, createRequest)).gameID();
 
-        JoinGameRequest requestWhite = new JoinGameRequest(authToken1, chess.ChessGame.TeamColor.WHITE, gameID);
-        Assertions.assertDoesNotThrow(() -> gameService.joinGame(requestWhite));
-        JoinGameRequest requestBlack = new JoinGameRequest(authToken2, chess.ChessGame.TeamColor.BLACK, gameID);
-        Assertions.assertDoesNotThrow(() -> gameService.joinGame(requestBlack));
+        JoinGameRequest requestWhite = new JoinGameRequest(chess.ChessGame.TeamColor.WHITE, gameID);
+        Assertions.assertDoesNotThrow(() -> gameService.joinGame(authToken1, requestWhite));
+        JoinGameRequest requestBlack = new JoinGameRequest(chess.ChessGame.TeamColor.BLACK, gameID);
+        Assertions.assertDoesNotThrow(() -> gameService.joinGame(authToken2, requestBlack));
 
         Assertions.assertNotNull(gameService.gameDAO.getGame(gameID).whiteUser());
         Assertions.assertNotNull(gameService.gameDAO.getGame(gameID).blackUser());
@@ -99,37 +96,37 @@ public class GameTests {
     @Test
     @DisplayName("join game taken (white)")
     public void JoinGameTakenW() {
-        CreateGameRequest createRequest = new CreateGameRequest(authToken1, "newGame");
-        int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(createRequest)).gameID();
+        CreateGameRequest createRequest = new CreateGameRequest("newGame");
+        int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(authToken1, createRequest)).gameID();
 
-        JoinGameRequest requestWhite = new JoinGameRequest(authToken1, chess.ChessGame.TeamColor.WHITE, gameID);
-        gameService.joinGame(requestWhite);
+        JoinGameRequest requestWhite = new JoinGameRequest(chess.ChessGame.TeamColor.WHITE, gameID);
+        gameService.joinGame(authToken1, requestWhite);
 
-        JoinGameRequest requestWhite2 = new JoinGameRequest(authToken2, chess.ChessGame.TeamColor.WHITE, gameID);
-        Assertions.assertThrows(ForbiddenException.class, () -> gameService.joinGame(requestWhite2));
+        JoinGameRequest requestWhite2 = new JoinGameRequest(chess.ChessGame.TeamColor.WHITE, gameID);
+        Assertions.assertThrows(ForbiddenException.class, () -> gameService.joinGame(authToken2, requestWhite2));
     }
 
     @Test
     @DisplayName("join game taken (black)")
     public void JoinGameTakenB() {
-        CreateGameRequest createRequest = new CreateGameRequest(authToken1, "newGame");
-        int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(createRequest)).gameID();
+        CreateGameRequest createRequest = new CreateGameRequest("newGame");
+        int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(authToken1, createRequest)).gameID();
 
-        JoinGameRequest requestBlack = new JoinGameRequest(authToken1, chess.ChessGame.TeamColor.BLACK, gameID);
-        gameService.joinGame(requestBlack);
+        JoinGameRequest requestBlack = new JoinGameRequest(chess.ChessGame.TeamColor.BLACK, gameID);
+        gameService.joinGame(authToken1, requestBlack);
 
-        JoinGameRequest requestBlack2 = new JoinGameRequest(authToken2, chess.ChessGame.TeamColor.BLACK, gameID);
-        Assertions.assertThrows(ForbiddenException.class, () -> gameService.joinGame(requestBlack2));
+        JoinGameRequest requestBlack2 = new JoinGameRequest(chess.ChessGame.TeamColor.BLACK, gameID);
+        Assertions.assertThrows(ForbiddenException.class, () -> gameService.joinGame(authToken2, requestBlack2));
     }
 
     @Test
     @DisplayName("join game unauthorized")
     public void JoinGameNoAuth() {
-        CreateGameRequest createRequest = new CreateGameRequest(authToken1, "newGame");
-        int gameID = gameService.createGame(createRequest).gameID();
+        CreateGameRequest createRequest = new CreateGameRequest("newGame");
+        int gameID = gameService.createGame(authToken1, createRequest).gameID();
 
-        JoinGameRequest request = new JoinGameRequest("", chess.ChessGame.TeamColor.WHITE, gameID);
-        Assertions.assertThrows(UnauthorizedException.class, () -> gameService.joinGame(request));
+        JoinGameRequest request = new JoinGameRequest(chess.ChessGame.TeamColor.WHITE, gameID);
+        Assertions.assertThrows(UnauthorizedException.class, () -> gameService.joinGame("", request));
 
         Assertions.assertNull(gameService.gameDAO.getGame(gameID).whiteUser());
     }

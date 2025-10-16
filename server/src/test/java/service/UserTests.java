@@ -7,7 +7,6 @@ import dataaccess.exceptions.UnauthorizedException;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import service.requests.LoginRequest;
-import service.requests.LogoutRequest;
 import service.requests.RegisterRequest;
 import service.results.LoginResult;
 import service.results.RegisterResult;
@@ -55,16 +54,14 @@ public class UserTests {
         RegisterRequest registerRequest = new RegisterRequest("james", "secret", "james@jim.com");
         RegisterResult result = userService.register(registerRequest);
 
-        LogoutRequest request = new LogoutRequest(result.authToken());
-        Assertions.assertDoesNotThrow(() -> userService.logout(request));
+        Assertions.assertDoesNotThrow(() -> userService.logout(result.authToken()));
 
     }
     // logout unauthorized
     @Test
     @DisplayName("logout throws error if there is no valid authToken")
     public void logoutUnauthorized() {
-        LogoutRequest request = new LogoutRequest("");
-        Assertions.assertThrows(UnauthorizedException.class, () -> userService.logout(request));
+        Assertions.assertThrows(UnauthorizedException.class, () -> userService.logout(""));
     }
 
     // login success

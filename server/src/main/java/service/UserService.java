@@ -5,7 +5,6 @@ import dataaccess.exceptions.*;
 import model.AuthData;
 import model.UserData;
 import service.requests.LoginRequest;
-import service.requests.LogoutRequest;
 import service.requests.RegisterRequest;
 import service.results.LoginResult;
 import service.results.RegisterResult;
@@ -51,11 +50,11 @@ public class UserService {
         return new LoginResult(request.username(), authToken);
     }
 
-    public void logout(LogoutRequest request) throws UnauthorizedException {
-        if(authDAO.getAuth(request.authToken()) == null) {
+    public void logout(String authToken) throws UnauthorizedException {
+        if(authDAO.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
-        authDAO.removeAuth(request.authToken());
+        authDAO.removeAuth(authToken);
     }
 
     public void clear() {

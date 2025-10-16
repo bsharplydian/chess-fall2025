@@ -8,7 +8,6 @@ import dataaccess.exceptions.UnauthorizedException;
 import model.GameData;
 import service.requests.CreateGameRequest;
 import service.requests.JoinGameRequest;
-import service.requests.ListGamesRequest;
 import service.results.CreateGameResult;
 import service.results.ListGamesResult;
 
@@ -21,15 +20,15 @@ public class GameService {
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
     }
-    public ListGamesResult listGames(ListGamesRequest request) {
-        if(authDAO.getAuth(request.authToken()) == null) {
+    public ListGamesResult listGames(String authToken) {
+        if(authDAO.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
         return new ListGamesResult(gameDAO.getGames());
     }
 
-    public CreateGameResult createGame(CreateGameRequest request) {
-        if(authDAO.getAuth(request.authToken()) == null) {
+    public CreateGameResult createGame(String authToken, CreateGameRequest request) {
+        if(authDAO.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
         int gameID = generateGameID();
@@ -39,8 +38,8 @@ public class GameService {
 
     }
 
-    public void joinGame(JoinGameRequest request) {
-        if(authDAO.getAuth(request.authToken()) == null) {
+    public void joinGame(String authToken, JoinGameRequest request) {
+        if(authDAO.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
         if(!gameDAO.gameExists(request.gameID())) {
@@ -51,7 +50,7 @@ public class GameService {
         request.playerColor() == ChessGame.TeamColor.BLACK && existingData.blackUser() != null) {
             throw new ForbiddenException("Error: already taken");
         }
-        String username = authDAO.getAuth(request.authToken()).username();
+        String username = authDAO.getAuth(authToken).username();
         GameData newData = switch(request.playerColor()){
             case WHITE -> new GameData(existingData.gameID(), username, existingData.blackUser(), existingData.gameName(), existingData.game());
             case BLACK -> new GameData(existingData.gameID(), existingData.whiteUser(), username, existingData.gameName(), existingData.game());
