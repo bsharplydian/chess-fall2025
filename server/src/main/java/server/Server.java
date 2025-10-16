@@ -17,7 +17,7 @@ public class Server {
     UserService userService = new UserService(authDAO, userDAO);
     GameService gameService = new GameService(authDAO, gameDAO);
     UserJsonHandler userHandler = new UserJsonHandler(userService);
-    GameJsonHandler gameHandler = new GameJsonHandler();
+    GameJsonHandler gameHandler = new GameJsonHandler(gameService);
     private final Javalin javalin;
 
     public Server() {
@@ -64,10 +64,23 @@ public class Server {
         }
     }
     private void listGames(Context context) {
-
+        try {
+            context.json(gameHandler.listGames(combineAuthAndBody(context)));
+        } catch (UnauthorizedException e) {
+            context.status(401);
+            context.json(buildErrorMessage(e));
+        }
     }
     private void createGame(Context context) {
-
+        try {
+            context.json(gameHandler.createGame(combineAuthAndBody(context)));
+        } catch (BadRequestException e) {
+            context.status(400);
+            context.json(buildErrorMessage(e));
+        } catch (UnauthorizedException e) {
+            context.status(401);
+            context.json(buildErrorMessage(e));
+        }
     }
     private void joinGame(Context context) {
 
@@ -86,7 +99,7 @@ public class Server {
         }
         return String.format("""
                 {"authToken": "%s", %s}
-                """, context.header("authorization"), context.body().substring(1, context.body().length()-2));
+                """, context.header("authorization"), context.body().substring(1, context.body().length()-1));
     }
     private String buildErrorMessage(Exception e) {
         return String.format("""
