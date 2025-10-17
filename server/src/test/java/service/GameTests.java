@@ -38,7 +38,7 @@ public class GameTests {
 
     @Test
     @DisplayName("create game success")
-    public void CreateGameSuccess() {
+    public void createGameSuccess() {
         CreateGameRequest request = new CreateGameRequest("newGame");
         CreateGameResult result = Assertions.assertDoesNotThrow(() -> gameService.createGame(authToken1, request));
         Assertions.assertNotNull(gameService.gameDAO.getGame(result.gameID()));
@@ -46,7 +46,7 @@ public class GameTests {
 
     @Test
     @DisplayName("create game unauthorized")
-    public void CreateGameNoAuth() {
+    public void createGameNoAuth() {
         CreateGameRequest request = new CreateGameRequest("newGame");
         Assertions.assertThrows(UnauthorizedException.class, () ->
                 gameService.createGame("", request)
@@ -56,7 +56,7 @@ public class GameTests {
 
     @Test
     @DisplayName("list games success")
-    public void ListGamesSuccess() {
+    public void listGamesSuccess() {
         CreateGameRequest request1 = new CreateGameRequest("game1");
         gameService.createGame(authToken1, request1);
         CreateGameRequest request2 = new CreateGameRequest("game2");
@@ -69,7 +69,7 @@ public class GameTests {
 
     @Test
     @DisplayName("list games unauthorized")
-    public void ListGamesNoAuth() {
+    public void listGamesNoAuth() {
         CreateGameRequest request1 = new CreateGameRequest("game1");
         gameService.createGame(authToken1, request1);
         CreateGameRequest request2 = new CreateGameRequest("game2");
@@ -80,7 +80,7 @@ public class GameTests {
 
     @Test
     @DisplayName("join game success")
-    public void JoinGameSuccess() {
+    public void joinGameSuccess() {
         CreateGameRequest createRequest = new CreateGameRequest("newGame");
         int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(authToken1, createRequest)).gameID();
 
@@ -95,7 +95,7 @@ public class GameTests {
 
     @Test
     @DisplayName("join game taken (white)")
-    public void JoinGameTakenW() {
+    public void joinGameTakenW() {
         CreateGameRequest createRequest = new CreateGameRequest("newGame");
         int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(authToken1, createRequest)).gameID();
 
@@ -108,7 +108,7 @@ public class GameTests {
 
     @Test
     @DisplayName("join game taken (black)")
-    public void JoinGameTakenB() {
+    public void joinGameTakenB() {
         CreateGameRequest createRequest = new CreateGameRequest("newGame");
         int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(authToken1, createRequest)).gameID();
 
@@ -121,7 +121,7 @@ public class GameTests {
 
     @Test
     @DisplayName("join game unauthorized")
-    public void JoinGameNoAuth() {
+    public void joinGameNoAuth() {
         CreateGameRequest createRequest = new CreateGameRequest("newGame");
         int gameID = gameService.createGame(authToken1, createRequest).gameID();
 

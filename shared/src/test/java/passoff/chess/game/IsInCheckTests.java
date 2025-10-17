@@ -195,11 +195,7 @@ public class IsInCheckTests {
                 {2, 5}, {1, 7}, {3, 7}
         });
 
-        assertMoves(game, validMoves, kingPosition);
-    }
-
-    private static void assertMoves(ChessGame game, List<ChessMove> validMoves, ChessPosition position) {
-        var generatedMoves = game.validMoves(position);
+        var generatedMoves = game.validMoves(kingPosition);
         var actualMoves = new ArrayList<>(generatedMoves);
         TestUtilities.validateMoves(validMoves, actualMoves);
     }
