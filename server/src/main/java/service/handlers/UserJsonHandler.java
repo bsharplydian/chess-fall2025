@@ -15,13 +15,11 @@ public class UserJsonHandler {
 
     public String register(Context context) throws ForbiddenException, BadRequestException {
         RegisterRequest request = gson.fromJson(context.body(), RegisterRequest.class);
-        System.out.print(request);
         return gson.toJson(userService.register(request));
     }
 
     public String login(Context context) throws BadRequestException, UnauthorizedException {
         LoginRequest request = gson.fromJson(context.body(), LoginRequest.class);
-        System.out.print(request);
         return gson.toJson(userService.login(request));
     }
 

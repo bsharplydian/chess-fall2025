@@ -89,8 +89,8 @@ public class GameTests {
         JoinGameRequest requestBlack = new JoinGameRequest(chess.ChessGame.TeamColor.BLACK, gameID);
         Assertions.assertDoesNotThrow(() -> gameService.joinGame(authToken2, requestBlack));
 
-        Assertions.assertNotNull(gameService.gameDAO.getGame(gameID).whiteUser());
-        Assertions.assertNotNull(gameService.gameDAO.getGame(gameID).blackUser());
+        Assertions.assertNotNull(gameService.gameDAO.getGame(gameID).whiteUsername());
+        Assertions.assertNotNull(gameService.gameDAO.getGame(gameID).blackUsername());
     }
 
     @Test
@@ -128,7 +128,7 @@ public class GameTests {
         JoinGameRequest request = new JoinGameRequest(chess.ChessGame.TeamColor.WHITE, gameID);
         Assertions.assertThrows(UnauthorizedException.class, () -> gameService.joinGame("", request));
 
-        Assertions.assertNull(gameService.gameDAO.getGame(gameID).whiteUser());
+        Assertions.assertNull(gameService.gameDAO.getGame(gameID).whiteUsername());
     }
 
 }

@@ -18,7 +18,8 @@ public class GameJsonHandler {
 
     public String listGames(Context context) {
         ListGamesResult result = gameService.listGames(context.header("authorization"));
-        return gson.toJson(result);
+        String resultString = gson.toJson(result);
+        return resultString;
     }
 
     public String createGame(Context context) {

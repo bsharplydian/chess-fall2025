@@ -20,7 +20,7 @@ public class UserService {
         this.userDAO = userDAO;
     }
     public RegisterResult register(RegisterRequest request) throws ForbiddenException, BadRequestException {
-        if(request.username().isBlank() || request.password().isBlank() || request.email().isBlank()) {
+        if(request.username() == null || request.password() == null || request.email() == null) {
             throw new BadRequestException("Error: bad request");
         }
         if(userDAO.getUser(request.username()) != null) {
@@ -35,14 +35,13 @@ public class UserService {
     }
 
     public LoginResult login(LoginRequest request) throws BadRequestException, UnauthorizedException {
-        if(request.username().isBlank() || request.password().isBlank()) {
+        if(request.username() == null || request.password() == null) {
             throw new BadRequestException("Error: bad request");
         }
         if(userDAO.getUser(request.username()) == null) {
             throw new UnauthorizedException("Error: user doesn't exist");
         }
         if(!Objects.equals(userDAO.getUser(request.username()).password(), request.password())) {
-            // TODO: add password security
             throw new UnauthorizedException("Error: incorrect password");
         }
         String authToken = createToken();
