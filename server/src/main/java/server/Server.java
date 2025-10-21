@@ -1,8 +1,6 @@
 package server;
 
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import dataaccess.exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -11,16 +9,28 @@ import service.UserService;
 import service.handlers.*;
 
 public class Server {
-    MemoryAuthDAO authDAO = new MemoryAuthDAO();
-    MemoryUserDAO userDAO = new MemoryUserDAO();
-    MemoryGameDAO gameDAO = new MemoryGameDAO();
-    UserService userService = new UserService(authDAO, userDAO);
-    GameService gameService = new GameService(authDAO, gameDAO);
-    UserJsonHandler userHandler = new UserJsonHandler(userService);
-    GameJsonHandler gameHandler = new GameJsonHandler(gameService);
+    AuthDAO authDAO;
+    UserDAO userDAO;
+    GameDAO gameDAO;
+    UserService userService;
+    GameService gameService;
+    UserJsonHandler userHandler;
+    GameJsonHandler gameHandler;
     private final Javalin javalin;
 
     public Server() {
+        try {
+            this.authDAO = new SQLAuthDAO();
+            this.userDAO = new MemoryUserDAO();
+            this.gameDAO = new MemoryGameDAO();
+            this.userService = new UserService(authDAO, userDAO);
+            this.gameService = new GameService(authDAO, gameDAO);
+            this.userHandler = new UserJsonHandler(userService);
+            this.gameHandler = new GameJsonHandler(gameService);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(String.format("unable to start server: %s%n", e.getMessage()));
+        }
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
