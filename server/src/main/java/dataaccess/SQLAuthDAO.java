@@ -13,7 +13,13 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void createAuth(AuthData authData) {
+    public void createAuth(AuthData authData) throws DataAccessException {
+        String statement = "INSERT INTO authorization (id, authToken, username) VALUES (?, ?, ?)";
+        try (Connection conn = DatabaseManager.getConnection()) {
+
+        } catch (SQLException | DataAccessException e) {
+            throw new DataAccessException(e.getMessage());
+        }
         throw new RuntimeException("Not Implemented");
     }
 

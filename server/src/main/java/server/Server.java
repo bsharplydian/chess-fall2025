@@ -52,6 +52,9 @@ public class Server {
         } catch (BadRequestException e) {
             context.status(400);
             context.json(buildErrorMessage(e));
+        } catch (DataAccessException e) {
+            context.status(500);
+            context.json(buildErrorMessage(e));
         }
     }
     private void login(Context context) {
@@ -62,6 +65,9 @@ public class Server {
             context.json(buildErrorMessage(e));
         } catch (BadRequestException e) {
             context.status(400);
+            context.json(buildErrorMessage(e));
+        } catch (DataAccessException e) {
+            context.status(500);
             context.json(buildErrorMessage(e));
         }
     }

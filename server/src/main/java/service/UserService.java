@@ -19,7 +19,7 @@ public class UserService {
         this.authDAO = authDAO;
         this.userDAO = userDAO;
     }
-    public RegisterResult register(RegisterRequest request) throws ForbiddenException, BadRequestException {
+    public RegisterResult register(RegisterRequest request) throws ForbiddenException, BadRequestException, DataAccessException {
         if(request.username() == null || request.password() == null || request.email() == null) {
             throw new BadRequestException("Error: bad request");
         }
@@ -30,11 +30,10 @@ public class UserService {
         userDAO.createUser(new UserData(request.username(), request.password(), request.email()));
         String authToken = createToken();
         authDAO.createAuth(new AuthData(authToken, request.username()));
-
         return new RegisterResult(request.username(), authToken);
     }
 
-    public LoginResult login(LoginRequest request) throws BadRequestException, UnauthorizedException {
+    public LoginResult login(LoginRequest request) throws BadRequestException, UnauthorizedException, DataAccessException {
         if(request.username() == null || request.password() == null) {
             throw new BadRequestException("Error: bad request");
         }

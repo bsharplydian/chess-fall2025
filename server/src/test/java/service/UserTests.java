@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
+import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.ForbiddenException;
 import dataaccess.exceptions.UnauthorizedException;
 import model.UserData;
@@ -10,6 +11,8 @@ import service.requests.LoginRequest;
 import service.requests.RegisterRequest;
 import service.results.LoginResult;
 import service.results.RegisterResult;
+
+import javax.xml.crypto.Data;
 
 public class UserTests {
     private static UserService userService;
@@ -23,7 +26,7 @@ public class UserTests {
     }
     @Test
     @DisplayName("register creates a user")
-    public void registerSuccess() {
+    public void registerSuccess() throws DataAccessException {
         //ensure that the proper UserData object is returned
         RegisterRequest request = new RegisterRequest("jim", "secret", "jim@jim.com");
         RegisterResult result = userService.register(request);
@@ -39,7 +42,7 @@ public class UserTests {
 
     @Test
     @DisplayName("register throws exception if username exists")
-    public void registerAlreadyExists() {
+    public void registerAlreadyExists() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("jim", "secret", "jim@jim.com");
         userService.register(request);
 
@@ -50,7 +53,7 @@ public class UserTests {
     // logout success
     @Test
     @DisplayName("logout logs the user out")
-    public void logoutSuccess() {
+    public void logoutSuccess() throws DataAccessException {
         RegisterRequest registerRequest = new RegisterRequest("james", "secret", "james@jim.com");
         RegisterResult result = userService.register(registerRequest);
 
@@ -67,7 +70,7 @@ public class UserTests {
     // login success
     @Test
     @DisplayName("login success")
-    public void loginSuccess() {
+    public void loginSuccess() throws DataAccessException {
         RegisterRequest registerRequest = new RegisterRequest("jim", "secret", "jim@jim.com");
         userService.register(registerRequest);
 
@@ -85,7 +88,7 @@ public class UserTests {
     // login has invalid password
     @Test
     @DisplayName("login wrong password")
-    public void loginWrongPassword() {
+    public void loginWrongPassword() throws DataAccessException {
         RegisterRequest registerRequest = new RegisterRequest("jim", "secret", "jim@jim.com");
         userService.register(registerRequest);
 

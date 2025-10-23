@@ -3,6 +3,7 @@ package service;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
+import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.ForbiddenException;
 import dataaccess.exceptions.UnauthorizedException;
 import org.junit.jupiter.api.Assertions;
@@ -24,7 +25,7 @@ public class GameTests {
     private static String authToken2;
 
     @BeforeEach
-    void reset() {
+    void reset() throws DataAccessException {
         userService.clear();
         gameService.clear();
         RegisterRequest user1 = new RegisterRequest("user1", "pw", "user1@mailmail.com");
