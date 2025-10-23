@@ -57,7 +57,7 @@ public class GameTests {
 
     @Test
     @DisplayName("list games success")
-    public void listGamesSuccess() {
+    public void listGamesSuccess() throws DataAccessException {
         CreateGameRequest request1 = new CreateGameRequest("game1");
         gameService.createGame(authToken1, request1);
         CreateGameRequest request2 = new CreateGameRequest("game2");
@@ -70,7 +70,7 @@ public class GameTests {
 
     @Test
     @DisplayName("list games unauthorized")
-    public void listGamesNoAuth() {
+    public void listGamesNoAuth() throws DataAccessException {
         CreateGameRequest request1 = new CreateGameRequest("game1");
         gameService.createGame(authToken1, request1);
         CreateGameRequest request2 = new CreateGameRequest("game2");
@@ -96,7 +96,7 @@ public class GameTests {
 
     @Test
     @DisplayName("join game taken (white)")
-    public void joinGameTakenW() {
+    public void joinGameTakenW() throws DataAccessException {
         CreateGameRequest createRequest = new CreateGameRequest("newGame");
         int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(authToken1, createRequest)).gameID();
 
@@ -109,7 +109,7 @@ public class GameTests {
 
     @Test
     @DisplayName("join game taken (black)")
-    public void joinGameTakenB() {
+    public void joinGameTakenB() throws DataAccessException {
         CreateGameRequest createRequest = new CreateGameRequest("newGame");
         int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(authToken1, createRequest)).gameID();
 
@@ -122,7 +122,7 @@ public class GameTests {
 
     @Test
     @DisplayName("join game unauthorized")
-    public void joinGameNoAuth() {
+    public void joinGameNoAuth() throws DataAccessException {
         CreateGameRequest createRequest = new CreateGameRequest("newGame");
         int gameID = gameService.createGame(authToken1, createRequest).gameID();
 

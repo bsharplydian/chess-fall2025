@@ -23,7 +23,7 @@ public class UserJsonHandler {
         return gson.toJson(userService.login(request));
     }
 
-    public void logout(Context context) throws UnauthorizedException {
+    public void logout(Context context) throws UnauthorizedException, DataAccessException {
         userService.logout(context.header("authorization"));
     }
 }

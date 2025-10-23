@@ -48,14 +48,14 @@ public class UserService {
         return new LoginResult(request.username(), authToken);
     }
 
-    public void logout(String authToken) throws UnauthorizedException {
+    public void logout(String authToken) throws UnauthorizedException, DataAccessException {
         if(authDAO.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
         authDAO.removeAuth(authToken);
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         authDAO.removeAll();
         userDAO.removeAll();
     }

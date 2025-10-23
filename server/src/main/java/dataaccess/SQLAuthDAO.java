@@ -16,11 +16,13 @@ public class SQLAuthDAO implements AuthDAO {
     public void createAuth(AuthData authData) throws DataAccessException {
         String statement = "INSERT INTO authorization (id, authToken, username) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseManager.getConnection()) {
-
+            try(var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
         } catch (SQLException | DataAccessException e) {
             throw new DataAccessException(e.getMessage());
         }
-        throw new RuntimeException("Not Implemented");
+//        throw new RuntimeException("Not Implemented");
     }
 
     @Override
@@ -34,8 +36,15 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void removeAll() {
-        throw new RuntimeException("Not Implemented");
+    public void removeAll() throws DataAccessException {
+        String statement = "INSERT INTO authorization (id, authToken, username) VALUES (?, ?, ?)";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try(var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     private final String[] createStatements = {

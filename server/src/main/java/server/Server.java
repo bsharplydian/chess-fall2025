@@ -21,8 +21,8 @@ public class Server {
     public Server() {
         try {
             this.authDAO = new SQLAuthDAO();
-            this.userDAO = new MemoryUserDAO();
-            this.gameDAO = new MemoryGameDAO();
+            this.userDAO = new SQLUserDAO();
+            this.gameDAO = new SQLGameDAO();
             this.userService = new UserService(authDAO, userDAO);
             this.gameService = new GameService(authDAO, gameDAO);
             this.userHandler = new UserJsonHandler(userService);
@@ -77,6 +77,9 @@ public class Server {
         } catch (UnauthorizedException e) {
             context.status(401);
             context.json(buildErrorMessage(e));
+        } catch (DataAccessException e) {
+            context.status(500);
+            context.json(buildErrorMessage(e));
         }
     }
     private void listGames(Context context) {
@@ -84,6 +87,9 @@ public class Server {
             context.json(gameHandler.listGames(context));
         } catch (UnauthorizedException e) {
             context.status(401);
+            context.json(buildErrorMessage(e));
+        } catch (DataAccessException e) {
+            context.status(500);
             context.json(buildErrorMessage(e));
         }
     }
@@ -95,6 +101,9 @@ public class Server {
             context.json(buildErrorMessage(e));
         } catch (UnauthorizedException e) {
             context.status(401);
+            context.json(buildErrorMessage(e));
+        } catch (DataAccessException e) {
+            context.status(500);
             context.json(buildErrorMessage(e));
         }
     }
@@ -110,11 +119,19 @@ public class Server {
         } catch (ForbiddenException e) {
             context.status(403);
             context.json(buildErrorMessage(e));
+        } catch (DataAccessException e) {
+            context.status(500);
+            context.json(buildErrorMessage(e));
         }
     }
     private void clear(Context context) {
-        userService.clear();
-        gameService.clear();
+        try {
+            userService.clear();
+            gameService.clear();
+        } catch (DataAccessException e) {
+            context.status(500);
+            context.json(buildErrorMessage(e));
+        }
     }
 
     private String buildErrorMessage(Exception e) {

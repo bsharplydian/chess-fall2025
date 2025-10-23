@@ -3,6 +3,7 @@ package service;
 import chess.ChessGame;
 import dataaccess.*;
 import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.ForbiddenException;
 import dataaccess.exceptions.UnauthorizedException;
 import model.GameData;
@@ -20,14 +21,14 @@ public class GameService {
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
     }
-    public ListGamesResult listGames(String authToken) {
+    public ListGamesResult listGames(String authToken) throws DataAccessException {
         if(authDAO.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
         return new ListGamesResult(gameDAO.getGames());
     }
 
-    public CreateGameResult createGame(String authToken, CreateGameRequest request) {
+    public CreateGameResult createGame(String authToken, CreateGameRequest request) throws DataAccessException {
         if(request.gameName() == null) {
             throw new BadRequestException("Error: bad request");
         }
@@ -41,7 +42,7 @@ public class GameService {
 
     }
 
-    public void joinGame(String authToken, JoinGameRequest request) {
+    public void joinGame(String authToken, JoinGameRequest request) throws DataAccessException{
         if(authDAO.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
