@@ -5,7 +5,7 @@ import model.GameData;
 import java.util.Collection;
 import java.util.List;
 
-public class SQLGameDAO implements GameDAO {
+public class SQLGameDAO extends SQLDAO implements GameDAO {
     @Override
     public void removeAll() {
         throw new RuntimeException("Not Implemented");

@@ -1,20 +1,43 @@
 package dataaccess;
 
+import dataaccess.exceptions.DataAccessException;
 import model.UserData;
 
-public class SQLUserDAO implements UserDAO {
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class SQLUserDAO extends SQLDAO implements UserDAO {
     @Override
-    public UserData getUser(String username) {
-        throw new RuntimeException("Not Implemented");
+    public UserData getUser(String username) throws DataAccessException {
+        String statement = "SELECT * FROM users WHERE username=?";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try(var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, username);
+                try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if(resultSet.next()) {
+                        return new UserData(resultSet.getString("username"),
+                                resultSet.getString("password"),
+                                resultSet.getString("email"));
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
-    public void createUser(UserData userData) {
-        throw new RuntimeException("Not Implemented");
+    public void createUser(UserData userData) throws DataAccessException {
+        String statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+        executeUpdate(statement, userData.username(), userData.password(), userData.email());
     }
 
     @Override
-    public void removeAll() {
-        throw new RuntimeException("Not Implemented");
+    public void removeAll() throws DataAccessException {
+        String statement = "DELETE FROM users";
+        executeUpdate(statement);
     }
 }

@@ -2,6 +2,8 @@ package service;
 
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
+import dataaccess.SQLAuthDAO;
+import dataaccess.SQLUserDAO;
 import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.ForbiddenException;
 import dataaccess.exceptions.UnauthorizedException;
@@ -21,8 +23,12 @@ public class UserTests {
 
     }
     @BeforeEach
-    void resetService() {
-        userService = new UserService(new MemoryAuthDAO(), new MemoryUserDAO());
+    void resetService() throws DataAccessException {
+        SQLAuthDAO authDAO = new SQLAuthDAO();
+        SQLUserDAO userDAO = new SQLUserDAO();
+        authDAO.removeAll();
+        userDAO.removeAll();
+        userService = new UserService(authDAO, userDAO);
     }
     @Test
     @DisplayName("register creates a user")

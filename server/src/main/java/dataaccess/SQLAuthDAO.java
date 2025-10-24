@@ -6,7 +6,7 @@ import model.AuthData;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class SQLAuthDAO implements AuthDAO {
+public class SQLAuthDAO extends SQLDAO implements AuthDAO {
 
     public SQLAuthDAO() throws DataAccessException {
         configureDatabase();
@@ -14,15 +14,8 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public void createAuth(AuthData authData) throws DataAccessException {
-        String statement = "INSERT INTO authorization (id, authToken, username) VALUES (?, ?, ?)";
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try(var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.executeUpdate();
-            }
-        } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException(e.getMessage());
-        }
-//        throw new RuntimeException("Not Implemented");
+        String statement = "INSERT INTO authorization (authToken, username) VALUES (?, ?)";
+        executeUpdate(statement, authData.authToken(), authData.username());
     }
 
     @Override
@@ -31,43 +24,16 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void removeAuth(String token) {
-        throw new RuntimeException("Not Implemented");
+    public void removeAuth(String token) throws DataAccessException {
+        String statement = "DELETE FROM authorization WHERE authToken = ?";
+        executeUpdate(statement);
     }
 
     @Override
     public void removeAll() throws DataAccessException {
-        String statement = "INSERT INTO authorization (id, authToken, username) VALUES (?, ?, ?)";
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try(var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.executeUpdate();
-            }
-        } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException(e.getMessage());
-        }
+        String statement = "DELETE FROM authorization";
+        executeUpdate(statement);
     }
 
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS authorization (
-            `id` int NOT NULL AUTO_INCREMENT,
-            `authToken` varchar(256) NOT NULL,
-            `username` varchar(256) NOT NULL,
-            PRIMARY KEY (`authtoken`),
-            INDEX(`id`)
-            )
-            """
-    };
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", e.getMessage()));
-        }
-    }
+
 }
