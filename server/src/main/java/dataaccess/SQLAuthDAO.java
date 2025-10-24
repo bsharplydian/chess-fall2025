@@ -2,8 +2,10 @@ package dataaccess;
 
 import dataaccess.exceptions.DataAccessException;
 import model.AuthData;
+import model.UserData;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SQLAuthDAO extends SQLDAO implements AuthDAO {
@@ -19,14 +21,29 @@ public class SQLAuthDAO extends SQLDAO implements AuthDAO {
     }
 
     @Override
-    public AuthData getAuth(String token) {
-        throw new RuntimeException("Not Implemented");
+    public AuthData getAuth(String token) throws DataAccessException {
+        String statement = "SELECT * FROM authorization WHERE authToken = ?";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try(var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, token);
+                try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if(resultSet.next()) {
+                        return new AuthData(resultSet.getString("authToken"),
+                                resultSet.getString("username"));
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
     public void removeAuth(String token) throws DataAccessException {
         String statement = "DELETE FROM authorization WHERE authToken = ?";
-        executeUpdate(statement);
+        executeUpdate(statement, token);
     }
 
     @Override
