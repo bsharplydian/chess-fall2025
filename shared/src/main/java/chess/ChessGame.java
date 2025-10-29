@@ -99,7 +99,7 @@ public class ChessGame {
                 case WHITE -> whiteCastleTracker;
                 case BLACK -> blackCastleTracker;
             };
-            moves.addAll(currentCastleTracker.getCastleMoves());
+            moves.addAll(currentCastleTracker.getCastleMoves(this));
         }
         Collection<ChessMove> invalidMoves = new HashSet<>();
         for(ChessMove move : moves) {
@@ -280,8 +280,8 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         currentBoard = board;
-        whiteCastleTracker.updateKingPosition();
-        blackCastleTracker.updateKingPosition();
+        whiteCastleTracker.updateKingPosition(this);
+        blackCastleTracker.updateKingPosition(this);
     }
 
     /**

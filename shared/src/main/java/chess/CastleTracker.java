@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class CastleTracker {
-    private final ChessGame game;
     private final ChessGame.TeamColor teamColor;
     private ChessPosition kingPosition;
     private final int kingRow;
@@ -16,39 +15,38 @@ public class CastleTracker {
     static final int[] KING_EMPTY_COLUMNS = new int[]{6, 7};
 
     public CastleTracker(ChessGame game, ChessGame.TeamColor teamColor) {
-        this.game = game;
         this.teamColor = teamColor;
-        updateKingPosition();
+        updateKingPosition(game);
         this.kingRow = switch(teamColor) {
             case WHITE -> 1;
             case BLACK -> 8;
         };
     }
 
-    public Collection<ChessMove> getCastleMoves() {
+    public Collection<ChessMove> getCastleMoves(ChessGame game) {
         Collection<ChessMove> moves = new HashSet<>();
         ChessPosition destinationQueenSide = new ChessPosition(kingRow, 3);
         ChessPosition destinationKingSide = new ChessPosition(kingRow, 7);
 
-        if(canCastleQueenSide()) {
+        if(canCastleQueenSide(game)) {
             moves.add(new ChessMove(kingPosition, destinationQueenSide, null));
         }
-        if(canCastleKingSide()) {
+        if(canCastleKingSide(game)) {
             moves.add(new ChessMove(kingPosition, destinationKingSide, null));
         }
 
         return moves;
     }
 
-    private boolean canCastleQueenSide() {
-        return canCastle(queenSideMoved, QUEEN_EMPTY_COLUMNS);
+    private boolean canCastleQueenSide(ChessGame game) {
+        return canCastle(queenSideMoved, QUEEN_EMPTY_COLUMNS, game);
     }
 
-    private boolean canCastleKingSide() {
-        return canCastle(kingSideMoved, KING_EMPTY_COLUMNS);
+    private boolean canCastleKingSide(ChessGame game) {
+        return canCastle(kingSideMoved, KING_EMPTY_COLUMNS, game);
     }
 
-    private boolean canCastle(boolean sideMoved, int[] emptyColumns) {
+    private boolean canCastle(boolean sideMoved, int[] emptyColumns, ChessGame game) {
         // neither piece has moved
         if (sideMoved) {
             return false;
@@ -71,7 +69,7 @@ public class CastleTracker {
                 return false;
             }
             //not in check for intermediate spaces
-            ChessGame previewGame = new ChessGame(this.game);
+            ChessGame previewGame = new ChessGame(game);
             previewGame.getBoard().movePiece(new ChessMove(kingPosition, intermediatePosition, null), game.getBoard().getPiece(kingPosition));
             checkCalculator = new CheckCalculator(previewGame.getBoard(), teamColor, previewGame.getBoard().getKingPosition(teamColor));
             if (checkCalculator.isInCheck()) {
@@ -93,7 +91,7 @@ public class CastleTracker {
         kingSideMoved = true;
     }
 
-    public void updateKingPosition() {
+    public void updateKingPosition(ChessGame game) {
         kingPosition = game.getBoard().getKingPosition(teamColor);
     }
 }
