@@ -1,6 +1,7 @@
 package service;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import dataaccess.*;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.DataAccessException;
@@ -35,14 +36,13 @@ public class GameService {
         if(authDAO.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
-        int gameID = generateGameID();
-        gameDAO.addGame(new GameData(gameID, null, null, request.gameName()));
+        int gameID = gameDAO.addGame( request.gameName(), new ChessGame());
 
         return new CreateGameResult(gameID);
 
     }
 
-    public void joinGame(String authToken, JoinGameRequest request) throws DataAccessException{
+    public void joinGame(String authToken, JoinGameRequest request) throws DataAccessException {
         if(authDAO.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
@@ -56,22 +56,14 @@ public class GameService {
         }
         String username = authDAO.getAuth(authToken).username();
         GameData newData = switch(request.playerColor()){
-            case WHITE -> new GameData(existingData.gameID(), username, existingData.blackUsername(), existingData.gameName());
-            case BLACK -> new GameData(existingData.gameID(), existingData.whiteUsername(), username, existingData.gameName());
+            case WHITE -> new GameData(existingData.gameID(), username, existingData.blackUsername(), existingData.gameName(), existingData.game());
+            case BLACK -> new GameData(existingData.gameID(), existingData.whiteUsername(), username, existingData.gameName(), existingData.game());
         };
         gameDAO.updateGame(newData);
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         gameDAO.removeAll();
     }
 
-    private int generateGameID() {
-        Random random = new Random();
-        int gameID;
-        do {
-            gameID = random.nextInt(10000);
-        } while (gameDAO.gameExists(gameID));
-        return gameID;
-    }
 }

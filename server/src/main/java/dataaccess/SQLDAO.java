@@ -84,11 +84,11 @@ public class SQLDAO {
             """,
             """
             CREATE TABLE IF NOT EXISTS games (
-            `id` int NOT NULL,
+            `id` int NOT NULL AUTO_INCREMENT,
             `whiteUsername` varchar(256) NOT NULL,
             `blackUsername` varchar(256) NOT NULL,
             `gameName` varchar(256) NOT NULL,
-            `chessGame` varchar(256) NOT NULL,
+            `chessGameJson` varchar(256) NOT NULL,
             PRIMARY KEY (`id`)
             )
             """

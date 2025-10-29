@@ -39,7 +39,7 @@ public class GameTests {
 
     @Test
     @DisplayName("create game success")
-    public void createGameSuccess() {
+    public void createGameSuccess() throws DataAccessException {
         CreateGameRequest request = new CreateGameRequest("newGame");
         CreateGameResult result = Assertions.assertDoesNotThrow(() -> gameService.createGame(authToken1, request));
         Assertions.assertNotNull(gameService.gameDAO.getGame(result.gameID()));
@@ -47,7 +47,7 @@ public class GameTests {
 
     @Test
     @DisplayName("create game unauthorized")
-    public void createGameNoAuth() {
+    public void createGameNoAuth() throws DataAccessException {
         CreateGameRequest request = new CreateGameRequest("newGame");
         Assertions.assertThrows(UnauthorizedException.class, () ->
                 gameService.createGame("", request)
@@ -81,7 +81,7 @@ public class GameTests {
 
     @Test
     @DisplayName("join game success")
-    public void joinGameSuccess() {
+    public void joinGameSuccess() throws DataAccessException {
         CreateGameRequest createRequest = new CreateGameRequest("newGame");
         int gameID = Assertions.assertDoesNotThrow(() -> gameService.createGame(authToken1, createRequest)).gameID();
 

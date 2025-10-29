@@ -1,15 +1,15 @@
 package dataaccess;
 
+import chess.ChessGame;
+import dataaccess.exceptions.DataAccessException;
 import model.GameData;
+import model.SimpleGameData;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MemoryGameDAO implements GameDAO {
     Map<Integer, GameData> games = new HashMap<>();
-
+    Integer nextID = 0;
     @Override
     public void removeAll() {
         games.clear();
@@ -21,8 +21,10 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public void addGame(GameData gameData) {
-        games.put(gameData.gameID(), gameData);
+    public int addGame(String gameName, ChessGame game) {
+        int gameID = generateGameID();
+        games.put(gameID, new GameData(gameID, null, null, gameName, game));
+        return gameID;
     }
 
     @Override
@@ -31,8 +33,17 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public Collection<GameData> getGames() {
-        return games.values();
+    public Collection<SimpleGameData> getGames() {
+        ArrayList<SimpleGameData> simpleList = new ArrayList<>();
+        for(GameData game : games.values()) {
+            simpleList.add(new SimpleGameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
+        }
+        return simpleList;
+    }
+    private int generateGameID() {
+        int newID = nextID;
+        nextID += 1;
+        return newID;
     }
 
     @Override
