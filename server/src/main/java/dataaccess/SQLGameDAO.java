@@ -63,7 +63,7 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
             try(var preparedStatement = conn.prepareStatement(statement)) {
                 try(ResultSet resultSet = preparedStatement.executeQuery()) {
                     while(resultSet.next()) {
-                        SimpleGameData game = new SimpleGameData(resultSet.getInt("gameID"),
+                        SimpleGameData game = new SimpleGameData(resultSet.getInt("id"),
                                 resultSet.getString("whiteUsername"),
                                 resultSet.getString("blackUsername"),
                                 resultSet.getString("gameName"));
