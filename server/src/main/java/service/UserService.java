@@ -4,6 +4,7 @@ import dataaccess.*;
 import dataaccess.exceptions.*;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import service.requests.LoginRequest;
 import service.requests.RegisterRequest;
 import service.results.LoginResult;
@@ -26,8 +27,8 @@ public class UserService {
         if(userDAO.getUser(request.username()) != null) {
             throw new ForbiddenException("Error: already taken");
         }
-
-        userDAO.createUser(new UserData(request.username(), request.password(), request.email()));
+        String hashedPass = BCrypt.hashpw(request.password(), BCrypt.gensalt());
+        userDAO.createUser(new UserData(request.username(), hashedPass, request.email()));
         String authToken = createToken();
         authDAO.createAuth(new AuthData(authToken, request.username()));
         return new RegisterResult(request.username(), authToken);
@@ -40,7 +41,7 @@ public class UserService {
         if(userDAO.getUser(request.username()) == null) {
             throw new UnauthorizedException("Error: user doesn't exist");
         }
-        if(!Objects.equals(userDAO.getUser(request.username()).password(), request.password())) {
+        if(!BCrypt.checkpw(request.password(), userDAO.getUser(request.username()).password())) {
             throw new UnauthorizedException("Error: incorrect password");
         }
         String authToken = createToken();
