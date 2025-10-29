@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
@@ -36,7 +35,7 @@ public class SQLDAO {
                 return 0;
             }
         } catch (SQLException e) {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new DataAccessException(String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
@@ -102,7 +101,7 @@ public class SQLDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", e.getMessage()));
+            throw new DataAccessException(String.format("Error: Unable to configure database: %s", e.getMessage()));
         }
     }
 }

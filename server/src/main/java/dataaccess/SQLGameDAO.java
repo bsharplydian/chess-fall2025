@@ -37,8 +37,8 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
                     }
                 }
             }
-        } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException(e.getMessage());
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("Error: %s", e.getMessage()));
         }
     }
 
@@ -72,8 +72,8 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
                     return games;
                 }
             }
-        } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException(e.getMessage());
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("Error: %s", e.getMessage()));
         }
     }
 

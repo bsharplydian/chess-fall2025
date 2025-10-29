@@ -28,7 +28,7 @@ public class Server {
             this.userHandler = new UserJsonHandler(userService);
             this.gameHandler = new GameJsonHandler(gameService);
         } catch (DataAccessException e) {
-            throw new RuntimeException(String.format("unable to start server: %s%n", e.getMessage()));
+            throw new RuntimeException(String.format("Error: unable to start server: %s%n", e.getMessage()));
         }
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
