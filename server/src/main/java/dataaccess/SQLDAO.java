@@ -21,8 +21,8 @@ public class SQLDAO {
                         case String p -> ps.setString(i + 1, p);
                         case Integer p -> ps.setInt(i + 1, p);
                         case null -> ps.setNull(i + 1, NULL);
-                        default -> {
-                        }
+
+                        default -> throw new IllegalStateException("Unexpected value: " + param);
                     }
                 }
                 ps.executeUpdate();
@@ -38,28 +38,7 @@ public class SQLDAO {
             throw new DataAccessException(String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
-
-//    protected ResultSet executeQuery(String statement, Object... params) throws DataAccessException {
-//        try(Connection conn = DatabaseManager.getConnection()) {
-//            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-//                for (int i = 0; i < params.length; i++) {
-//                    Object param = params[i];
-//                    switch (param) {
-//                        case String p -> ps.setString(i + 1, p);
-//                        case Integer p -> ps.setInt(i + 1, p);
-//                        case null -> ps.setNull(i + 1, NULL);
-//                        default -> {
-//                        }
-//                    }
-//                }
-//                try(ResultSet rs = ps.executeQuery()) {
-//
-//                }
-//            }
-//        } catch (SQLException e) {
-//            throw new DataAccessException(String.format("unable to query database: %s, %s", statement, e.getMessage()));
-//        }
-//    }
+    
 
     private final String[] createStatements = {
             """
