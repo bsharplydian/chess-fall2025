@@ -1,7 +1,9 @@
 package dataaccess;
 
+import chess.ChessGame;
 import dataaccess.exceptions.DataAccessException;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 
@@ -122,68 +124,87 @@ public class DatabaseUnitTests {
     /////////////////////////////////////////////////////////
     @Test
     @DisplayName("Add Game Success")
-    public void addGameSuccess() {
-
+    public void addGameSuccess() throws DataAccessException {
+        ChessGame game = new ChessGame();
+        int gameID = gameDAO.addGame("first", game);
+        Assertions.assertEquals(game, gameDAO.getGame(gameID).game());
     }
 
     @Test
     @DisplayName("Add Game Failure")
-    public void addGameFailure() {
-
+    public void addGameFailure() throws DataAccessException {
+        Assertions.assertThrows(DataAccessException.class, () -> gameDAO.addGame(null, null));
     }
 
     @Test
     @DisplayName("Get Game Success")
-    public void getGameSuccess() {
-
+    public void getGameSuccess() throws DataAccessException {
+        ChessGame game = new ChessGame();
+        int gameID = gameDAO.addGame("first", game);
+        Assertions.assertDoesNotThrow(() -> gameDAO.getGame(gameID).game());
     }
 
     @Test
     @DisplayName("Get Game Failure")
-    public void getGameFailure() {
-
+    public void getGameFailure() throws DataAccessException {
+        Assertions.assertNull(gameDAO.getGame(4097));
     }
 
     @Test
     @DisplayName("Update Game Success")
-    public void updateGameSuccess() {
-
+    public void updateGameSuccess() throws DataAccessException {
+        ChessGame game = new ChessGame();
+        int gameID = gameDAO.addGame("updateSuccess", game);
+        gameDAO.updateGame(new GameData(gameID, "newWhite", "newBlack", "updateSuccess", new ChessGame()));
+        Assertions.assertEquals(new GameData(gameID, "newWhite", "newBlack", "updateSuccess", new ChessGame()), gameDAO.getGame(gameID));
     }
 
     @Test
     @DisplayName("Update Game Failure")
-    public void updateGameFailure() {
-
+    public void updateGameFailure() throws DataAccessException {
+        ChessGame game = new ChessGame();
+        int gameID = gameDAO.addGame("updateFailure", game);
+        Assertions.assertThrows(DataAccessException.class, () -> gameDAO.updateGame(new GameData(gameID, null, null, null, null)));
     }
 
     @Test
     @DisplayName("Get Games Success")
-    public void getGamesSuccess() {
-
+    public void getGamesSuccess() throws DataAccessException {
+        gameDAO.addGame("game1", new ChessGame());
+        gameDAO.addGame("game2", new ChessGame());
+        gameDAO.addGame("game3", new ChessGame());
+        var gameList = gameDAO.getGames();
+        Assertions.assertEquals(3, gameList.size());
     }
 
     @Test
-    @DisplayName("Get Games Failure")
-    public void getGamesFailure() {
-
+    @DisplayName("Get Games Empty")
+    public void getGamesEmpty() throws DataAccessException {
+        var gameList = gameDAO.getGames();
+        Assertions.assertEquals(0, gameList.size());
     }
 
     @Test
     @DisplayName("Game Exists Success")
-    public void gameExistsSuccess() {
-
+    public void gameExistsSuccess() throws DataAccessException {
+        int gameID = gameDAO.addGame("game1", new ChessGame());
+        Assertions.assertTrue(gameDAO.gameExists(gameID));
     }
 
     @Test
     @DisplayName("Game Exists Failure")
-    public void gameExistsFailure() {
-
+    public void gameExistsFailure() throws DataAccessException {
+        Assertions.assertFalse(gameDAO.gameExists(4096));
     }
 
     @Test
     @DisplayName("Clear Games Success")
-    public void clearGamesSuccess() {
-
+    public void clearGamesSuccess() throws DataAccessException {
+        gameDAO.addGame("game1", new ChessGame());
+        gameDAO.addGame("game2", new ChessGame());
+        gameDAO.addGame("game3", new ChessGame());
+        gameDAO.removeAll();
+        Assertions.assertEquals(0, gameDAO.getGames().size());
     }
 
 }
