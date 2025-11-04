@@ -47,6 +47,7 @@ public class Server {
         try {
             context.json(userHandler.register(context));
         } catch (ForbiddenException e) {
+            // USE JAVALIN EXCEPTION HANDLING
             context.status(403);
             context.json(buildErrorMessage(e));
         } catch (BadRequestException e) {

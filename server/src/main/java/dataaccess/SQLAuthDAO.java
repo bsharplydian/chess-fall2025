@@ -42,6 +42,9 @@ public class SQLAuthDAO extends SQLDAO implements AuthDAO {
 
     @Override
     public void removeAuth(String token) throws DataAccessException {
+        if(token == null){
+            throw new DataAccessException("Error: invalid authorization");
+        }
         String statement = "DELETE FROM authorization WHERE authToken = ?";
         executeUpdate(statement, token);
     }
