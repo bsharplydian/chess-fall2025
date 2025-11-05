@@ -20,7 +20,7 @@ public class ServerFacade {
     public RegisterResult register(RegisterRequest request) {
         var httpRequest = buildRequest("POST", "/user", request);
         var httpResponse = sendRequest(httpRequest);
-        return null;
+        return handleResponse(httpResponse, RegisterResult.class);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body) {
@@ -49,4 +49,23 @@ public class ServerFacade {
         }
     }
 
+    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) {
+        var status = response.statusCode();
+        if(!isSuccessful(status)) {
+            var body = response.body();
+            if(body != null) {
+                RuntimeException ex = new Gson().fromJson(body, RuntimeException.class);
+                throw new RuntimeException(ex);
+            }
+
+            throw new RuntimeException(String.format("other failure: %d", status));
+        }
+        if(responseClass != null) {
+            return new Gson().fromJson(response.body(), responseClass);
+        }
+        return null;
+    }
+    private boolean isSuccessful(int status) {
+        return status >= 200 && status < 300;
+    }
 }
