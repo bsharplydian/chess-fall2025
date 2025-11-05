@@ -5,12 +5,11 @@ import dataaccess.exceptions.*;
 import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
-import service.requests.LoginRequest;
-import service.requests.RegisterRequest;
-import service.results.LoginResult;
-import service.results.RegisterResult;
+import model.requests.LoginRequest;
+import model.requests.RegisterRequest;
+import model.results.LoginResult;
+import model.results.RegisterResult;
 
-import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {

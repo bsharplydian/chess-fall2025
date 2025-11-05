@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import service.requests.CreateGameRequest;
-import service.requests.JoinGameRequest;
-import service.requests.RegisterRequest;
-import service.results.CreateGameResult;
-import service.results.ListGamesResult;
-import service.results.RegisterResult;
+import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
+import model.requests.RegisterRequest;
+import model.results.CreateGameResult;
+import model.results.ListGamesResult;
+import model.results.RegisterResult;
 
 public class GameTests {
     static MemoryAuthDAO authDAO = new MemoryAuthDAO();

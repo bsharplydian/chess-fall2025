@@ -1,7 +1,5 @@
 package service;
 
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
 import dataaccess.SQLAuthDAO;
 import dataaccess.SQLUserDAO;
 import dataaccess.exceptions.DataAccessException;
@@ -9,12 +7,10 @@ import dataaccess.exceptions.ForbiddenException;
 import dataaccess.exceptions.UnauthorizedException;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import service.requests.LoginRequest;
-import service.requests.RegisterRequest;
-import service.results.LoginResult;
-import service.results.RegisterResult;
-
-import javax.xml.crypto.Data;
+import model.requests.LoginRequest;
+import model.requests.RegisterRequest;
+import model.results.LoginResult;
+import model.results.RegisterResult;
 
 public class UserTests {
     private static UserService userService;

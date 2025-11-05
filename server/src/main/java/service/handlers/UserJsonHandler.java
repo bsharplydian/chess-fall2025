@@ -3,8 +3,9 @@ package service.handlers;
 import com.google.gson.Gson;
 import dataaccess.exceptions.*;
 import io.javalin.http.Context;
+import model.requests.LoginRequest;
+import model.requests.RegisterRequest;
 import service.UserService;
-import service.requests.*;
 
 public class UserJsonHandler {
     private final UserService userService;

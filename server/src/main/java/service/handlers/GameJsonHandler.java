@@ -4,10 +4,10 @@ import com.google.gson.Gson;
 import dataaccess.exceptions.DataAccessException;
 import io.javalin.http.Context;
 import service.GameService;
-import service.requests.CreateGameRequest;
-import service.requests.JoinGameRequest;
-import service.results.CreateGameResult;
-import service.results.ListGamesResult;
+import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
+import model.results.CreateGameResult;
+import model.results.ListGamesResult;
 
 public class GameJsonHandler {
     private final GameService gameService;

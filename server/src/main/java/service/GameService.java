@@ -1,19 +1,16 @@
 package service;
 
 import chess.ChessGame;
-import com.google.gson.Gson;
 import dataaccess.*;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.ForbiddenException;
 import dataaccess.exceptions.UnauthorizedException;
 import model.GameData;
-import service.requests.CreateGameRequest;
-import service.requests.JoinGameRequest;
-import service.results.CreateGameResult;
-import service.results.ListGamesResult;
-
-import java.util.Random;
+import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
+import model.results.CreateGameResult;
+import model.results.ListGamesResult;
 
 public class GameService {
     AuthDAO authDAO;
