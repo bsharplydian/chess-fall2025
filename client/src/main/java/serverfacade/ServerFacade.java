@@ -18,11 +18,49 @@ public class ServerFacade {
         this.serverURL = url;
     }
 
+    public ServerFacade(int port) {
+        this.serverURL = String.format("http://localhost:%d", port);
+    }
+
     public RegisterResult register(RegisterRequest request) {
         var httpRequest = buildRequest("POST", "/user", request);
         var httpResponse = sendRequest(httpRequest);
         return handleResponse(httpResponse, RegisterResult.class);
     }
+
+    public LoginResult login(LoginRequest request) {
+        var httpRequest = buildRequest("POST", "/session", request);
+        var httpResponse = sendRequest(httpRequest);
+        return handleResponse(httpResponse, LoginResult.class);
+    }
+
+    public void logout() {
+        var httpRequest = buildRequest("DELETE", "/session", null);
+        sendRequest(httpRequest);
+    }
+
+    public ListGamesResult listGames() {
+        var httpRequest = buildRequest("GET", "/game", null);
+        var httpResponse = sendRequest(httpRequest);
+        return handleResponse(httpResponse, ListGamesResult.class);
+    }
+
+    public CreateGameResult createGame(CreateGameRequest request) {
+        var httpRequest = buildRequest("POST", "/game", request);
+        var httpResponse = sendRequest(httpRequest);
+        return handleResponse(httpResponse, CreateGameResult.class);
+    }
+
+    public void joinGame(JoinGameRequest request) {
+        var httpRequest = buildRequest("PUT", "/game", request);
+        sendRequest(httpRequest);
+    }
+
+    public void clear() {
+        var httpRequest = buildRequest("DELETE", "/db", null);
+        sendRequest(httpRequest);
+    }
+
 
     private HttpRequest buildRequest(String method, String path, Object body) {
         var request = HttpRequest.newBuilder()
