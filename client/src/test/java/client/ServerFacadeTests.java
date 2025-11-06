@@ -55,5 +55,10 @@ public class ServerFacadeTests {
 
     }
 
+    @Test
+    public void logoutUnauthorized() throws HttpResponseException {
+        Assertions.assertThrows(HttpResponseException.class, ()->facade.logout("nonexistent_token"));
+    }
+
 
 }

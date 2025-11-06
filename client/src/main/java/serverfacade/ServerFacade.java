@@ -36,7 +36,8 @@ public class ServerFacade {
 
     public void logout(String authToken) throws HttpResponseException {
         var httpRequest = buildRequest("DELETE", "/session", null, authToken);
-        sendRequest(httpRequest);
+        var httpResponse = sendRequest(httpRequest);
+        handleResponse(httpResponse, null);
     }
 
     public ListGamesResult listGames(String authToken) throws HttpResponseException {
@@ -53,12 +54,14 @@ public class ServerFacade {
 
     public void joinGame(JoinGameRequest request, String authToken) throws HttpResponseException {
         var httpRequest = buildRequest("PUT", "/game", request, authToken);
-        sendRequest(httpRequest);
+        var httpResponse = sendRequest(httpRequest);
+        handleResponse(httpResponse, null);
     }
 
     public void clear() throws HttpResponseException {
         var httpRequest = buildRequest("DELETE", "/db", null, null);
-        sendRequest(httpRequest);
+        var httpResponse = sendRequest(httpRequest);
+        handleResponse(httpResponse, null);
     }
 
 
