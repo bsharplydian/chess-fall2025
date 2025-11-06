@@ -3,6 +3,7 @@ package client;
 import model.requests.RegisterRequest;
 import org.junit.jupiter.api.*;
 import server.Server;
+import serverfacade.HttpResponseException;
 import serverfacade.ServerFacade;
 
 
@@ -20,7 +21,7 @@ public class ServerFacadeTests {
     }
 
     @BeforeEach
-    public void reset() {
+    public void reset() throws HttpResponseException {
         facade.clear();
     }
 
@@ -31,7 +32,7 @@ public class ServerFacadeTests {
 
 
     @Test
-    public void registerTest() {
+    public void registerSuccess() throws HttpResponseException {
         RegisterRequest request = new RegisterRequest("tim", "tim", "tim@tim.com");
         var result = facade.register(request);
         Assertions.assertTrue(result.authToken().length() > 10);
@@ -39,8 +40,10 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void loginTest() {
-
+    public void registerAlreadyTaken() throws HttpResponseException {
+        RegisterRequest request = new RegisterRequest("tim", "tim", "tim@tim.com");
+        facade.register(request);
+        Assertions.assertThrows(HttpResponseException.class, ()->facade.register(request));
     }
 
 }

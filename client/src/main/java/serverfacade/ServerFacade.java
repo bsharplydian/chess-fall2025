@@ -22,41 +22,41 @@ public class ServerFacade {
         this.serverURL = String.format("http://localhost:%d", port);
     }
 
-    public RegisterResult register(RegisterRequest request) {
+    public RegisterResult register(RegisterRequest request) throws HttpResponseException {
         var httpRequest = buildRequest("POST", "/user", request);
         var httpResponse = sendRequest(httpRequest);
         return handleResponse(httpResponse, RegisterResult.class);
     }
 
-    public LoginResult login(LoginRequest request) {
+    public LoginResult login(LoginRequest request) throws HttpResponseException {
         var httpRequest = buildRequest("POST", "/session", request);
         var httpResponse = sendRequest(httpRequest);
         return handleResponse(httpResponse, LoginResult.class);
     }
 
-    public void logout() {
+    public void logout() throws HttpResponseException {
         var httpRequest = buildRequest("DELETE", "/session", null);
         sendRequest(httpRequest);
     }
 
-    public ListGamesResult listGames() {
+    public ListGamesResult listGames() throws HttpResponseException {
         var httpRequest = buildRequest("GET", "/game", null);
         var httpResponse = sendRequest(httpRequest);
         return handleResponse(httpResponse, ListGamesResult.class);
     }
 
-    public CreateGameResult createGame(CreateGameRequest request) {
+    public CreateGameResult createGame(CreateGameRequest request) throws HttpResponseException {
         var httpRequest = buildRequest("POST", "/game", request);
         var httpResponse = sendRequest(httpRequest);
         return handleResponse(httpResponse, CreateGameResult.class);
     }
 
-    public void joinGame(JoinGameRequest request) {
+    public void joinGame(JoinGameRequest request) throws HttpResponseException {
         var httpRequest = buildRequest("PUT", "/game", request);
         sendRequest(httpRequest);
     }
 
-    public void clear() {
+    public void clear() throws HttpResponseException {
         var httpRequest = buildRequest("DELETE", "/db", null);
         sendRequest(httpRequest);
     }
@@ -80,24 +80,24 @@ public class ServerFacade {
         }
     }
 
-    private HttpResponse<String> sendRequest(HttpRequest request) {
+    private HttpResponse<String> sendRequest(HttpRequest request) throws HttpResponseException {
         try {
             return client.send(request, BodyHandlers.ofString());
         } catch (Exception ex) {
-            throw new ServerConnectionException(ex.getMessage());
+            throw new HttpResponseException(ex.getMessage());
         }
     }
 
-    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) {
+    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws HttpResponseException {
         var status = response.statusCode();
         if(!isSuccessful(status)) {
             var body = response.body();
             if(body != null) {
                 HashMap<String, String> errorMap = new Gson().fromJson(body, HashMap.class);
-                throw new ServerConnectionException(errorMap.get("message"));
+                throw new HttpResponseException(errorMap.get("message"));
             }
 
-            throw new ServerConnectionException(String.format("other failure: %d", status));
+            throw new HttpResponseException(String.format("other failure: %d", status));
         }
         if(responseClass != null) {
             return new Gson().fromJson(response.body(), responseClass);
