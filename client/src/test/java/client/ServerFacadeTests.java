@@ -1,6 +1,7 @@
 package client;
 
 import model.requests.RegisterRequest;
+import model.results.RegisterResult;
 import org.junit.jupiter.api.*;
 import server.Server;
 import serverfacade.HttpResponseException;
@@ -45,5 +46,14 @@ public class ServerFacadeTests {
         facade.register(request);
         Assertions.assertThrows(HttpResponseException.class, ()->facade.register(request));
     }
+
+    @Test
+    public void logoutSuccess() throws HttpResponseException {
+        RegisterRequest request = new RegisterRequest("tim", "tim", "tim@tim.com");
+        RegisterResult result = facade.register(request);
+        Assertions.assertDoesNotThrow(()->facade.logout(result.authToken()));
+
+    }
+
 
 }
