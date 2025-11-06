@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.http.*;
 import java.net.http.HttpRequest.*;
 import java.net.http.HttpResponse.*;
+import java.util.HashMap;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
@@ -45,7 +46,7 @@ public class ServerFacade {
         try {
             return client.send(request, BodyHandlers.ofString());
         } catch (Exception ex) {
-            throw new RuntimeException(ex.getMessage());
+            throw new ServerConnectionException(ex.getMessage());
         }
     }
 
@@ -54,11 +55,11 @@ public class ServerFacade {
         if(!isSuccessful(status)) {
             var body = response.body();
             if(body != null) {
-                RuntimeException ex = new Gson().fromJson(body, RuntimeException.class);
-                throw new RuntimeException(ex);
+                HashMap<String, String> errorMap = new Gson().fromJson(body, HashMap.class);
+                throw new ServerConnectionException(errorMap.get("message"));
             }
 
-            throw new RuntimeException(String.format("other failure: %d", status));
+            throw new ServerConnectionException(String.format("other failure: %d", status));
         }
         if(responseClass != null) {
             return new Gson().fromJson(response.body(), responseClass);
