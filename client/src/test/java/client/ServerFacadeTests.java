@@ -132,4 +132,13 @@ public class ServerFacadeTests {
         Assertions.assertThrows(HttpResponseException.class, ()->facade.joinGame(joinGameRequest, "noauth"));
     }
 
+    @Test
+    public void clear() throws HttpResponseException {
+        CreateGameRequest request1 = new CreateGameRequest("game1");
+        facade.createGame(request1, existingUserResult.authToken()).gameID();
+        Assertions.assertDoesNotThrow(()->facade.clear());
+        // existing auth token should have been erased
+        Assertions.assertThrows(HttpResponseException.class, ()-> facade.listGames(existingUserResult.authToken()));
+    }
+
 }
