@@ -1,6 +1,8 @@
 package client;
 
+import model.requests.LoginRequest;
 import model.requests.RegisterRequest;
+import model.results.LoginResult;
 import model.results.RegisterResult;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -58,6 +60,25 @@ public class ServerFacadeTests {
     @Test
     public void logoutUnauthorized() throws HttpResponseException {
         Assertions.assertThrows(HttpResponseException.class, ()->facade.logout("nonexistent_token"));
+    }
+
+    @Test
+    public void loginSuccess() throws HttpResponseException {
+        RegisterRequest registerRequest = new RegisterRequest("tim", "tim", "tim@tim.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+        facade.logout(registerResult.authToken());
+        LoginRequest loginRequest = new LoginRequest("tim", "tim");
+        LoginResult loginResult = facade.login(loginRequest);
+        Assertions.assertTrue(loginResult.authToken().length() > 10);
+    }
+
+    @Test
+    public void loginWrongPassword() throws HttpResponseException {
+        RegisterRequest registerRequest = new RegisterRequest("tim", "tim", "tim@tim.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+        facade.logout(registerResult.authToken());
+        LoginRequest loginRequest = new LoginRequest("tim", "wrongPassword");
+        Assertions.assertThrows(HttpResponseException.class, ()->facade.login(loginRequest));
     }
 
 
