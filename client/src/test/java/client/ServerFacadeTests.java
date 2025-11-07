@@ -1,6 +1,8 @@
 package client;
 
+import chess.ChessGame;
 import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
 import model.requests.LoginRequest;
 import model.requests.RegisterRequest;
 import model.results.CreateGameResult;
@@ -111,4 +113,23 @@ public class ServerFacadeTests {
     public void listGamesUnauthorized() {
         Assertions.assertThrows(HttpResponseException.class, ()->facade.listGames("noauth"));
     }
+
+    @Test
+    public void joinGameSuccess() throws HttpResponseException {
+        CreateGameRequest request1 = new CreateGameRequest("game1");
+        int id1 = facade.createGame(request1, existingUserResult.authToken()).gameID();
+
+        JoinGameRequest joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE, id1);
+        Assertions.assertDoesNotThrow(()->facade.joinGame(joinGameRequest, existingUserResult.authToken()));
+    }
+
+    @Test
+    public void joinGameUnauthorized() throws HttpResponseException {
+        CreateGameRequest request1 = new CreateGameRequest("game1");
+        int id1 = facade.createGame(request1, existingUserResult.authToken()).gameID();
+
+        JoinGameRequest joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE, id1);
+        Assertions.assertThrows(HttpResponseException.class, ()->facade.joinGame(joinGameRequest, "noauth"));
+    }
+
 }
