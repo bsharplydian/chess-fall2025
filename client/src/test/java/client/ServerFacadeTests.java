@@ -4,6 +4,7 @@ import model.requests.CreateGameRequest;
 import model.requests.LoginRequest;
 import model.requests.RegisterRequest;
 import model.results.CreateGameResult;
+import model.results.ListGamesResult;
 import model.results.LoginResult;
 import model.results.RegisterResult;
 import org.junit.jupiter.api.*;
@@ -85,5 +86,29 @@ public class ServerFacadeTests {
         CreateGameRequest request = new CreateGameRequest("timsgame");
         CreateGameResult result = facade.createGame(request, existingUserResult.authToken());
         Assertions.assertTrue(result.gameID() > -1);
+    }
+
+    @Test
+    public void createGameUnauthorized() {
+        CreateGameRequest request = new CreateGameRequest("nobodysgame");
+        Assertions.assertThrows(HttpResponseException.class, ()->facade.createGame(request, "noauth"));
+    }
+
+    @Test
+    public void listGamesSuccess() throws HttpResponseException {
+        CreateGameRequest request1 = new CreateGameRequest("game1");
+        int id1 = facade.createGame(request1, existingUserResult.authToken()).gameID();
+        CreateGameRequest request2 = new CreateGameRequest("game2");
+        int id2 = facade.createGame(request2, existingUserResult.authToken()).gameID();
+        CreateGameRequest request3 = new CreateGameRequest("game3");
+        int id3 = facade.createGame(request3, existingUserResult.authToken()).gameID();
+
+        ListGamesResult listResult = facade.listGames(existingUserResult.authToken());
+        Assertions.assertEquals(3, listResult.games().size());
+    }
+
+    @Test
+    public void listGamesUnauthorized() {
+        Assertions.assertThrows(HttpResponseException.class, ()->facade.listGames("noauth"));
     }
 }
