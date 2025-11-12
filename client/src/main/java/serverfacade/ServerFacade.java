@@ -13,6 +13,7 @@ import java.util.HashMap;
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverURL;
+    private String authToken = null;
 
     public ServerFacade(String url) {
         this.serverURL = url;
@@ -25,12 +26,20 @@ public class ServerFacade {
     public RegisterResult register(RegisterRequest request) throws HttpResponseException {
         var httpRequest = buildRequest("POST", "/user", request, null);
         var httpResponse = sendRequest(httpRequest);
-        return handleResponse(httpResponse, RegisterResult.class);
+        RegisterResult result = handleResponse(httpResponse, RegisterResult.class);
+        if(result != null) {
+            setAuth(result.authToken());
+        }
+        return result;
     }
 
     public LoginResult login(LoginRequest request) throws HttpResponseException {
         var httpRequest = buildRequest("POST", "/session", request, null);
         var httpResponse = sendRequest(httpRequest);
+        LoginResult result = handleResponse(httpResponse, LoginResult.class);
+        if(result != null) {
+            setAuth(result.authToken());
+        }
         return handleResponse(httpResponse, LoginResult.class);
     }
 
@@ -38,6 +47,7 @@ public class ServerFacade {
         var httpRequest = buildRequest("DELETE", "/session", null, authToken);
         var httpResponse = sendRequest(httpRequest);
         handleResponse(httpResponse, null);
+        setAuth(null);
     }
 
     public ListGamesResult listGames(String authToken) throws HttpResponseException {
@@ -112,5 +122,12 @@ public class ServerFacade {
     }
     private boolean isSuccessful(int status) {
         return status >= 200 && status < 300;
+    }
+
+    public void setAuth(String authToken) {
+        this.authToken = authToken;
+    }
+    public String getAuth() {
+        return this.authToken;
     }
 }
