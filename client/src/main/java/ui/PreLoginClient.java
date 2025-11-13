@@ -13,18 +13,14 @@ public class PreLoginClient implements Client {
         this.facade = facade;
     }
 
-    public String eval(String input) {
+    public String eval(String input) throws HttpResponseException {
         String[] params = input.split(" ");
-        try {
-            return switch (params[0]) {
-                case "register" -> handleRegister(params);
-                case "login" -> handleLogin(params);
+        return switch (params[0]) {
+            case "register" -> handleRegister(params);
+            case "login" -> handleLogin(params);
 
-                default -> throw new HttpResponseException("Invalid Command: " + params[0]);
-            };
-        } catch (HttpResponseException e) {
-            return e.getMessage();
-        }
+            default -> throw new HttpResponseException("Invalid Command: " + params[0]);
+        };
     }
     private String handleRegister(String[] params) throws HttpResponseException {
         if(params.length != 4) {
