@@ -1,6 +1,7 @@
 package ui;
 
 import model.requests.CreateGameRequest;
+import model.results.ListGamesResult;
 import serverfacade.HttpResponseException;
 import serverfacade.ServerFacade;
 
@@ -46,16 +47,21 @@ public class PostLoginClient implements Client {
         }
         try{
             Integer.parseInt(params[1]);
-        } catch (NumberFormatException e) {
             throw new HttpResponseException("Game names cannot be numerals");
+        } catch (NumberFormatException e) {
+            // string was not a number
         }
 
         facade.createGame(new CreateGameRequest(params[1]), facade.getAuth());
         return "Created " + params[1];
     }
 
-    private String handleList(String[] params) {
-        return "list games not implemented";
+    private String handleList(String[] params) throws HttpResponseException{
+        if(params.length != 1) {
+            throw new HttpResponseException("Usage: list");
+        }
+        ListGamesResult result = facade.listGames(facade.getAuth());
+        return result.toString();
     }
 
     private String handleJoin(String[] params) {
