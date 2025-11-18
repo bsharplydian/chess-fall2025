@@ -40,7 +40,8 @@ public class ClientManager {
         currentClient = switch(command) {
             case "register", "login" -> postLoginClient;
             case "logout" -> preLoginClient;
-            default -> throw new HttpResponseException("Invalid Command: " + command);
+
+            default -> currentClient;
         };
     }
 }

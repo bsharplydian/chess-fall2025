@@ -16,7 +16,7 @@ public class Repl {
         while(!result.equals("quit")) {
             System.out.print(clientManager.getPrompt());
             result = clientManager.eval(scanner.nextLine());
-            System.out.print(SET_TEXT_COLOR_WHITE + result);
+            System.out.print(SET_TEXT_COLOR_BLUE + result);
         }
 
     }

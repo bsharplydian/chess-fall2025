@@ -18,7 +18,12 @@ public class PreLoginClient implements Client {
         return switch (params[0]) {
             case "register" -> handleRegister(params);
             case "login" -> handleLogin(params);
-
+            case "help" -> """
+                    help -> display this menu
+                    register [name] [password] [email] -> register a new user
+                    login [name] [password] -> login an existing user
+                    quit -> exit the application""";
+            case "quit" -> "quit";
             default -> throw new HttpResponseException("Invalid Command: " + params[0]);
         };
     }
