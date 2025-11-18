@@ -1,9 +1,14 @@
 package ui;
 
+import chess.ChessGame;
 import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
 import model.results.ListGamesResult;
 import serverfacade.HttpResponseException;
 import serverfacade.ServerFacade;
+
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
 
 public class PostLoginClient implements Client {
 
@@ -56,7 +61,7 @@ public class PostLoginClient implements Client {
         return "Created " + params[1];
     }
 
-    private String handleList(String[] params) throws HttpResponseException{
+    private String handleList(String[] params) throws HttpResponseException {
         if(params.length != 1) {
             throw new HttpResponseException("Usage: list");
         }
@@ -64,8 +69,18 @@ public class PostLoginClient implements Client {
         return result.toString();
     }
 
-    private String handleJoin(String[] params) {
-        return "join game not implemented";
+    private String handleJoin(String[] params) throws HttpResponseException {
+        if(params.length != 3) {
+            throw new HttpResponseException("Usage: join [id] [WHITE|BLACK]");
+        }
+        ChessGame.TeamColor color = switch(params[2].toUpperCase()) {
+            case "WHITE", "W" -> WHITE;
+            case "BLACK", "B" -> BLACK;
+            default -> throw new HttpResponseException("Usage: join [id] [WHITE|BLACK]");
+        };
+        JoinGameRequest request = new JoinGameRequest(color, Integer.parseInt(params[1]));
+        facade.joinGame(request, facade.getAuth());
+        return "Joined " + params[1] + " as " + params[2];
     }
 
     private String handleObserve(String[] params) {
