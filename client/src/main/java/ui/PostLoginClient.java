@@ -1,17 +1,20 @@
 package ui;
 
 import chess.ChessGame;
+import model.SimpleGameData;
 import model.requests.CreateGameRequest;
 import model.requests.JoinGameRequest;
 import model.results.ListGamesResult;
 import serverfacade.HttpResponseException;
 import serverfacade.ServerFacade;
 
+import java.util.ArrayList;
+
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
 
 public class PostLoginClient implements Client {
-
+    ArrayList<Integer> serverGameIDs = new ArrayList<>();
     ServerFacade facade;
 
     public PostLoginClient(ServerFacade facade) {
@@ -66,7 +69,18 @@ public class PostLoginClient implements Client {
             throw new HttpResponseException("Usage: list");
         }
         ListGamesResult result = facade.listGames(facade.getAuth());
-        return result.toString();
+        StringBuilder gameList = new StringBuilder();
+        for(int i =0; i< result.games().size(); i++) {
+            SimpleGameData game = (SimpleGameData) result.games().toArray()[i];
+            String whiteUser = game.whiteUsername()!=null ? game.whiteUsername() : "----";
+            String blackUser = game.blackUsername()!=null ? game.blackUsername() : "----";
+            gameList.append(
+                    String.format("%d. %s -> | White: %s | Black: %s |\n", i+1, game.gameName(), whiteUser, blackUser
+                    )
+            );
+            serverGameIDs.add(i, game.gameID());
+        }
+        return gameList.toString();
     }
 
     private String handleJoin(String[] params) throws HttpResponseException {
@@ -78,8 +92,9 @@ public class PostLoginClient implements Client {
             case "BLACK", "B" -> BLACK;
             default -> throw new HttpResponseException("Usage: join [id] [WHITE|BLACK]");
         };
-        JoinGameRequest request = new JoinGameRequest(color, Integer.parseInt(params[1]));
+        JoinGameRequest request = new JoinGameRequest(color, serverGameIDs.get(Integer.parseInt(params[1])-1));
         facade.joinGame(request, facade.getAuth());
+        // add: game board printing in proper color
         return "Joined " + params[1] + " as " + params[2];
     }
 
