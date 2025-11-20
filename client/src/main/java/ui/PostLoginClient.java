@@ -87,6 +87,14 @@ public class PostLoginClient implements Client {
         if(params.length != 3) {
             throw new HttpResponseException("Usage: join [id] [WHITE|BLACK]");
         }
+        try{
+            Integer.parseInt(params[1]);
+        } catch (NumberFormatException e) {
+            throw new HttpResponseException("Invalid game ID");
+        }
+        if(Integer.parseInt(params[1]) > serverGameIDs.size() || Integer.parseInt(params[1]) <= 0) {
+            throw new HttpResponseException("Invalid game ID");
+        }
         ChessGame.TeamColor color = switch(params[2].toUpperCase()) {
             case "WHITE", "W" -> WHITE;
             case "BLACK", "B" -> BLACK;
