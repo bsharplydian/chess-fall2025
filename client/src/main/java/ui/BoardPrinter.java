@@ -15,8 +15,8 @@ public class BoardPrinter {
     private String blackPieceColor = SET_TEXT_COLOR_BLACK;
     private String coordBackground = SET_BG_COLOR_BLACK;
     private String coordForeground = SET_TEXT_COLOR_BLUE;
-    final int[] FORWARD_COORDS = {1, 2, 3, 4, 5, 6, 7, 8};
-    final int[] BACKWARD_COORDS = {8, 7, 6, 5, 4, 3, 2, 1};
+    final static int[] FORWARD_COORDS = {1, 2, 3, 4, 5, 6, 7, 8};
+    final static int[] BACKWARD_COORDS = {8, 7, 6, 5, 4, 3, 2, 1};
 
 
     public String printBoard(ChessBoard board, ChessGame.TeamColor color) {
