@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import model.SimpleGameData;
 import model.requests.CreateGameRequest;
@@ -16,6 +17,7 @@ import static chess.ChessGame.TeamColor.WHITE;
 public class PostLoginClient implements Client {
     ArrayList<Integer> serverGameIDs = new ArrayList<>();
     ServerFacade facade;
+    BoardPrinter printer = new BoardPrinter();
 
     public PostLoginClient(ServerFacade facade) {
         this.facade = facade;
@@ -103,11 +105,15 @@ public class PostLoginClient implements Client {
         JoinGameRequest request = new JoinGameRequest(color, serverGameIDs.get(Integer.parseInt(params[1])-1));
         facade.joinGame(request, facade.getAuth());
         // add: game board printing in proper color
-        return "Joined " + params[1] + " as " + params[2];
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        return "Joined " + params[1] + " as " + params[2] + "\n" + printer.printBoard(board, WHITE) + "\n" + printer.printBoard(board, BLACK);
     }
 
     private String handleObserve(String[] params) {
-        return "observe not implemented";
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        return printer.printBoard(board, WHITE) + "\n" + printer.printBoard(board, BLACK);
     }
 
 }
