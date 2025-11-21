@@ -15,46 +15,43 @@ public class BoardPrinter {
     private String blackPieceColor = SET_TEXT_COLOR_BLACK;
     private String coordBackground = SET_BG_COLOR_BLACK;
     private String coordForeground = SET_TEXT_COLOR_BLUE;
+    final int[] FORWARD_COORDS = {1, 2, 3, 4, 5, 6, 7, 8};
+    final int[] BACKWARD_COORDS = {8, 7, 6, 5, 4, 3, 2, 1};
+
 
     public String printBoard(ChessBoard board, ChessGame.TeamColor color) {
-        return switch(color) {
-            case WHITE -> printBoardWhite(board);
-            case BLACK -> printBoardBlack(board);
+        int[] rows = switch(color) {
+            case WHITE -> BACKWARD_COORDS; // white prints the rows starting at 8 and going down to 1
+            case BLACK -> FORWARD_COORDS; // black prints them starting with 1 at the top and going down to 8
         };
-    }
-
-    private String printBoardBlack(ChessBoard board) {
+        int[] cols = switch(color) {
+            case WHITE -> FORWARD_COORDS; // white prints the columns starting at a and going over to h
+            case BLACK -> BACKWARD_COORDS; // black starts at h and goes down to a
+        };
         StringBuilder boardString = new StringBuilder();
-        boardString.append(coordForeground + coordBackground + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR + "\n");
-        for(int row = 1; row <= 8; row++) {
-            boardString.append(String.format("%s%s %d ", coordForeground, coordBackground, row));
-            for(int col = 8; col >=1; col--) {
+        boardString.append(printColumnMarkers(color));
+        for(int row : rows) {
+            boardString.append(printRowMarker(row));
+            for(int col : cols) {
                 boardString.append(printCell(board.getPiece(new ChessPosition(row, col)), row, col));
-//                boardString.append(new ChessPosition(row, col));
             }
-            boardString.append(String.format("%s%s %d ", coordForeground, coordBackground, row));
+            boardString.append(printRowMarker(row));
             boardString.append(RESET_BG_COLOR + "\n");
         }
-        boardString.append(coordForeground + coordBackground + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR + "\n");
+        boardString.append(printColumnMarkers(color));
         return boardString.toString();
     }
 
-    private String printBoardWhite(ChessBoard board) {
-        StringBuilder boardString = new StringBuilder();
-        boardString.append(coordForeground + coordBackground + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR + "\n");
-        for(int row = 8; row >= 1; row--) {
-            boardString.append(String.format("%s%s %d ", coordForeground, coordBackground, row));
-            for(int col = 1; col <=8; col++) {
-                boardString.append(printCell(board.getPiece(new ChessPosition(row, col)), row, col));
-//                boardString.append(new ChessPosition(row, col));
-            }
-            boardString.append(String.format("%s%s %d ", coordForeground, coordBackground, row));
-            boardString.append(RESET_BG_COLOR + "\n");
-        }
-        boardString.append(coordForeground + coordBackground + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR + "\n");
-        return boardString.toString();
+    private String printRowMarker(int row) {
+        return String.format("%s%s %d ", coordForeground, coordBackground, row);
     }
-
+    private String printColumnMarkers(ChessGame.TeamColor color) {
+        String columns = switch(color) {
+            case BLACK -> "    h  g  f  e  d  c  b  a    ";
+            case WHITE -> "    a  b  c  d  e  f  g  h    ";
+        };
+        return coordForeground + coordBackground + columns + RESET_BG_COLOR + "\n";
+    }
     private String printCell(ChessPiece piece, int row, int col) {
         StringBuilder cell = new StringBuilder();
         if((row + col) % 2 == 1) {

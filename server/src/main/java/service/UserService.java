@@ -38,10 +38,10 @@ public class UserService {
             throw new BadRequestException("Error: bad request");
         }
         if(userDAO.getUser(request.username()) == null) {
-            throw new UnauthorizedException("Error: user doesn't exist");
+            throw new UnauthorizedException("Error: username or password is incorrect");
         }
         if(!BCrypt.checkpw(request.password(), userDAO.getUser(request.username()).password())) {
-            throw new UnauthorizedException("Error: incorrect password");
+            throw new UnauthorizedException("Error: username or password is incorrect");
         }
         String authToken = createToken();
         authDAO.createAuth(new AuthData(authToken, request.username()));

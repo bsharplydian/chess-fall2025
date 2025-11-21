@@ -24,6 +24,11 @@ public class ClientManager {
             setCurrentClient(params[0]);
         } catch (HttpResponseException e) {
             ret = e.getMessage();
+        } catch(Exception e) {
+            ret = e.getMessage();
+        }
+        if(ret == null) {
+            ret = "An unknown error occurred";
         }
         return ret;
 

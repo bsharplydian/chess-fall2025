@@ -72,6 +72,7 @@ public class PostLoginClient implements Client {
         }
         ListGamesResult result = facade.listGames(facade.getAuth());
         StringBuilder gameList = new StringBuilder();
+        serverGameIDs.clear();
         for(int i =0; i< result.games().size(); i++) {
             SimpleGameData game = (SimpleGameData) result.games().toArray()[i];
             String whiteUser = game.whiteUsername()!=null ? game.whiteUsername() : "----";
@@ -107,13 +108,25 @@ public class PostLoginClient implements Client {
         // add: game board printing in proper color
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        return "Joined " + params[1] + " as " + params[2] + "\n" + printer.printBoard(board, WHITE) + "\n" + printer.printBoard(board, BLACK);
+        return "Joined " + params[1] + " as " + params[2] + "\n" + printer.printBoard(board, color);
     }
 
-    private String handleObserve(String[] params) {
+    private String handleObserve(String[] params) throws HttpResponseException {
+        if(params.length != 2) {
+            throw new HttpResponseException("Usage: observe [id]");
+        }
+        try{
+            Integer.parseInt(params[1]);
+        } catch (NumberFormatException e) {
+            throw new HttpResponseException("Invalid game ID");
+        }
+        if(Integer.parseInt(params[1]) > serverGameIDs.size() || Integer.parseInt(params[1]) <= 0) {
+            throw new HttpResponseException("Invalid game ID");
+        }
+
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        return printer.printBoard(board, WHITE) + "\n" + printer.printBoard(board, BLACK);
+        return printer.printBoard(board, WHITE);
     }
 
 }
