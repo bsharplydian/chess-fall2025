@@ -10,9 +10,13 @@ import java.net.URISyntaxException;
 
 public class WebSocketFacade extends Endpoint {
     Session session;
-    public WebSocketFacade(String url) throws HttpResponseException {
+    String url;
+    public WebSocketFacade(String url) {
+        this.url = url.replace("http", "ws");
+    }
+
+    public void makeConnection() throws HttpResponseException {
         try {
-            url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -28,6 +32,14 @@ public class WebSocketFacade extends Endpoint {
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new HttpResponseException(ex.getMessage());
+        }
+    }
+
+    public void closeConnection() throws HttpResponseException {
+        try {
+            this.session.close();
+        } catch (IOException e) {
+            throw new HttpResponseException(e.getMessage());
         }
     }
 
