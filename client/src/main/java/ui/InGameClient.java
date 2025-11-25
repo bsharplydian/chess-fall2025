@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import serverfacade.HttpResponseException;
 import serverfacade.ServerFacade;
 import serverfacade.WebSocketFacade;
@@ -49,15 +50,20 @@ public class InGameClient implements Client {
         return "hl not implemented";
     }
 
-    public InGameClient start(String gameID) throws HttpResponseException {
+    public InGameClient start(String gameID, String color) throws HttpResponseException {
         int id;
         try{
             id = Integer.parseInt(gameID);
         } catch (NumberFormatException e) {
             throw new HttpResponseException(e.getMessage());
         }
+        ChessGame.TeamColor teamColor = switch(color.toUpperCase()) {
+            case "WHITE" -> ChessGame.TeamColor.WHITE;
+            case "BLACK" -> ChessGame.TeamColor.BLACK;
+            default -> throw new HttpResponseException("Usage: join [id] [WHITE|BLACK]");
+        };
         ws.startServerConnection();
-        ws.connectToGame(facade.getAuth(), id);
+        ws.connectToGame(facade.getAuth(), id, teamColor);
         return this;
     }
 }

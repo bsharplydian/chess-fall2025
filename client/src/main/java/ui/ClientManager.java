@@ -23,7 +23,7 @@ public class ClientManager {
         String ret;
         try {
             ret = currentClient.eval(input);
-            setCurrentClient(params[0], params[1]);
+            setCurrentClient(params);
         } catch (HttpResponseException e) {
             ret = e.getMessage();
         } catch(Exception e) {
@@ -43,11 +43,11 @@ public class ClientManager {
         }
         return null;
     }
-    private void setCurrentClient(String command, String gameID) throws HttpResponseException {
-        currentClient = switch(command) {
+    private void setCurrentClient(String[] params) throws HttpResponseException {
+        currentClient = switch(params[0]) {
             case "register", "login" -> currentClient instanceof PreLoginClient ? postLoginClient      : currentClient;
             case "logout" -> currentClient instanceof PostLoginClient           ? preLoginClient       : currentClient;
-            case "join", "observe" -> currentClient instanceof PostLoginClient  ? inGameClient.start(gameID) : currentClient;
+            case "join", "observe" -> currentClient instanceof PostLoginClient  ? inGameClient.start(params[1], params[2]) : currentClient;
             default -> currentClient;
         };
     }

@@ -1,7 +1,9 @@
 package serverfacade;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
+import websocket.commands.ConnectCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -35,9 +37,9 @@ public class WebSocketFacade extends Endpoint {
             throw new HttpResponseException(ex.getMessage());
         }
     }
-    public void connectToGame(String authToken, int gameID) throws HttpResponseException {
+    public void connectToGame(String authToken, int gameID, ChessGame.TeamColor color) throws HttpResponseException {
         try {
-            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            UserGameCommand command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, color, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException e) {
             throw new HttpResponseException(e.getMessage());
