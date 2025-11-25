@@ -14,7 +14,7 @@ public class ClientManager {
     public ClientManager(ServerFacade facade) {
         this.preLoginClient = new PreLoginClient(facade);
         this.postLoginClient = new PostLoginClient(facade);
-        this.inGameClient = new InGameClient();
+        this.inGameClient = new InGameClient(facade);
         this.currentClient = this.preLoginClient;
     }
 
@@ -23,7 +23,7 @@ public class ClientManager {
         String ret;
         try {
             ret = currentClient.eval(input);
-            setCurrentClient(params[0]);
+            setCurrentClient(params[0], params[1]);
         } catch (HttpResponseException e) {
             ret = e.getMessage();
         } catch(Exception e) {
@@ -43,11 +43,11 @@ public class ClientManager {
         }
         return null;
     }
-    private void setCurrentClient(String command) throws HttpResponseException {
+    private void setCurrentClient(String command, String gameID) throws HttpResponseException {
         currentClient = switch(command) {
             case "register", "login" -> currentClient instanceof PreLoginClient ? postLoginClient      : currentClient;
             case "logout" -> currentClient instanceof PostLoginClient           ? preLoginClient       : currentClient;
-            case "join", "observe" -> currentClient instanceof PostLoginClient  ? inGameClient.start() : currentClient;
+            case "join", "observe" -> currentClient instanceof PostLoginClient  ? inGameClient.start(gameID) : currentClient;
             default -> currentClient;
         };
     }

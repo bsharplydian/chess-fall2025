@@ -2,6 +2,7 @@ package serverfacade;
 
 import com.google.gson.Gson;
 import jakarta.websocket.*;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ public class WebSocketFacade extends Endpoint {
         this.url = url.replace("http", "ws");
     }
 
-    public void makeConnection() throws HttpResponseException {
+    public void startServerConnection() throws HttpResponseException {
         try {
             URI socketURI = new URI(url + "/ws");
 
@@ -34,8 +35,25 @@ public class WebSocketFacade extends Endpoint {
             throw new HttpResponseException(ex.getMessage());
         }
     }
+    public void connectToGame(String authToken, int gameID) throws HttpResponseException {
+        try {
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException e) {
+            throw new HttpResponseException(e.getMessage());
+        }
+    }
+    public void makeMove() {
 
-    public void closeConnection() throws HttpResponseException {
+    }
+    public void leave() {
+
+    }
+    public void resign() {
+
+    }
+
+    public void closeServerConnection() throws HttpResponseException {
         try {
             this.session.close();
         } catch (IOException e) {
