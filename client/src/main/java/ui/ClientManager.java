@@ -45,9 +45,9 @@ public class ClientManager {
     }
     private void setCurrentClient(String command) throws HttpResponseException {
         currentClient = switch(command) {
-            case "register", "login" -> postLoginClient;
-            case "logout" -> preLoginClient;
-            case "join", "observe" -> inGameClient.start();
+            case "register", "login" -> currentClient instanceof PreLoginClient ? postLoginClient      : currentClient;
+            case "logout" -> currentClient instanceof PostLoginClient           ? preLoginClient       : currentClient;
+            case "join", "observe" -> currentClient instanceof PostLoginClient  ? inGameClient.start() : currentClient;
             default -> currentClient;
         };
     }
