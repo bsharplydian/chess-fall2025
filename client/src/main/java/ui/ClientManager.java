@@ -10,9 +10,11 @@ public class ClientManager {
     Client currentClient;
     PreLoginClient preLoginClient;
     PostLoginClient postLoginClient;
+    InGameClient inGameClient;
     public ClientManager(ServerFacade facade) {
         this.preLoginClient = new PreLoginClient(facade);
         this.postLoginClient = new PostLoginClient(facade);
+        this.inGameClient = new InGameClient();
         this.currentClient = this.preLoginClient;
     }
 
@@ -45,7 +47,7 @@ public class ClientManager {
         currentClient = switch(command) {
             case "register", "login" -> postLoginClient;
             case "logout" -> preLoginClient;
-
+            case "join", "observe" -> inGameClient.start();
             default -> currentClient;
         };
     }
