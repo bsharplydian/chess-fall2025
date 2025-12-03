@@ -4,6 +4,7 @@ import dataaccess.*;
 import dataaccess.exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
+import server.websocket.WebSocketHandler;
 import service.GameService;
 import service.UserService;
 import service.handlers.*;
@@ -16,6 +17,7 @@ public class Server {
     GameService gameService;
     UserJsonHandler userHandler;
     GameJsonHandler gameHandler;
+    WebSocketHandler webSocketHandler;
     private final Javalin javalin;
 
     public Server() {
@@ -27,6 +29,7 @@ public class Server {
             this.gameService = new GameService(authDAO, gameDAO);
             this.userHandler = new UserJsonHandler(userService);
             this.gameHandler = new GameJsonHandler(gameService);
+            this.webSocketHandler = new WebSocketHandler(userService, gameService);
         } catch (DataAccessException e) {
             throw new RuntimeException(String.format("Error: unable to start server: %s%n", e.getMessage()));
         }

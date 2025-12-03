@@ -58,8 +58,9 @@ public class InGameClient implements Client {
             throw new HttpResponseException(e.getMessage());
         }
         ChessGame.TeamColor teamColor = switch(color.toUpperCase()) {
-            case "WHITE" -> ChessGame.TeamColor.WHITE;
-            case "BLACK" -> ChessGame.TeamColor.BLACK;
+            case "WHITE", "W" -> ChessGame.TeamColor.WHITE;
+            case "BLACK", "B" -> ChessGame.TeamColor.BLACK;
+            case "" -> null;
             default -> throw new HttpResponseException("Usage: join [id] [WHITE|BLACK]");
         };
         ws.startServerConnection();
