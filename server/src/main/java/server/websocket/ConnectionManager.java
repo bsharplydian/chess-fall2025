@@ -8,12 +8,19 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
     public final ConcurrentHashMap<Session, Session> connections = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Integer, GameManager> games = new ConcurrentHashMap<>();
 
-    public void add(Session session) {
-        connections.put(session, session);
+    public void addWhite(Integer gameID, Session session) {
+        games.get(gameID).addWhite(session);
     }
-    public void remove(Session session) {
-        connections.remove(session, session);
+    public void addBlack(Integer gameID, Session session) {
+        games.get(gameID).addBlack(session);
+    }
+    public void addObserver(Integer gameID, Session session) {
+        games.get(gameID).addObserver(session);
+    }
+    public void remove(Integer gameID, Session session) {
+        games.get(gameID).remove(session);
     }
 
     public void broadcast(Session excludeSession, ServerMessage serverMessage) throws IOException {
