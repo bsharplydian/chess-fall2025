@@ -16,7 +16,7 @@ public class ConnectionManager {
 //        games.get(gameID).addWhite(session);
     }
     public void addBlack(Integer gameID, Session session) {
-        games.get(gameID).addBlack(session);
+//        games.get(gameID).addBlack(session);
     }
     public void addObserver(Integer gameID, Session session) {
         games.get(gameID).addObserver(session);
@@ -30,8 +30,7 @@ public class ConnectionManager {
             games.put(id, new GameManager());
         }
         switch(color) {
-            case WHITE -> games.get(id).addWhite(session, username);
-            case BLACK -> games.get(id).addBlack(session);
+            case WHITE, BLACK -> games.get(id).addPlayer(session, username, color);
             case null -> games.get(id).addObserver(session);
             // error handling?
         }

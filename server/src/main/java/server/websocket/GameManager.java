@@ -1,5 +1,6 @@
 package server.websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.UserGameCommand;
@@ -15,15 +16,19 @@ public class GameManager {
     public Session blackPlayer = null;
     public final ConcurrentHashMap<Session, Session> observers = new ConcurrentHashMap<>();
 
-    public void addWhite(Session session, String username) throws IOException {
-        whitePlayer = session;
-        NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s joined as white", username));
+    public void addPlayer(Session session, String username, ChessGame.TeamColor color) throws IOException {
+        switch(color) {
+            case WHITE -> whitePlayer = session;
+            case BLACK -> blackPlayer = session;
+        }
+        NotificationMessage message = new NotificationMessage(
+                ServerMessage.ServerMessageType.NOTIFICATION,
+                String.format("%s joined as %s", username, color.toString().toLowerCase())
+        );
         allMessageExcept(session, message);
         sendMessage(session, new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME));
     }
-    public void addBlack(Session session) {
-        blackPlayer = session;
-    }
+
     public void addObserver(Session session) {
         observers.put(session, session);
     }
