@@ -4,6 +4,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -26,7 +27,8 @@ public class GameManager {
                 String.format("%s joined as %s", username, color.toString().toLowerCase())
         );
         allMessageExcept(session, message);
-        sendMessage(session, new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME));
+        sendMessage(session, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, new ChessGame()));
+        // need to get actual game from db
     }
 
     public void addObserver(Session session) {
