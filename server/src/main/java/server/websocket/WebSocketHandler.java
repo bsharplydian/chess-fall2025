@@ -1,30 +1,37 @@
 package server.websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
+import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import dataaccess.exceptions.DataAccessException;
 import io.javalin.websocket.*;
+import model.AuthData;
 import model.GameData;
 import org.jetbrains.annotations.NotNull;
 import service.GameService;
 import service.UserService;
 import websocket.commands.ConnectCommand;
 import websocket.commands.UserGameCommand;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
-import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
     ConnectionManager connectionManager = new ConnectionManager();
     UserService userService;
     GameService gameService;
     GameDAO gameDAO;
-    public WebSocketHandler(UserService userService, GameService gameService) {
+    UserDAO userDAO;
+    AuthDAO authDAO;
+
+    public WebSocketHandler(UserService userService, GameService gameService, GameDAO gameDAO, UserDAO userDAO, AuthDAO authDAO) {
         this.userService = userService;
         this.gameService = gameService;
+        this.gameDAO = gameDAO;
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
     }
 
     @Override
@@ -60,9 +67,27 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
     private void connect(WsMessageContext context, ConnectCommand command) throws IOException {
-
+        System.out.println("trying to connect to game " + command.getGameID());
+        connectionManager.addToGame(command, context.session, findPlayerColor(command));
     }
     private void makeMove(WsMessageContext context) throws IOException, DataAccessException {
 
+    }
+
+    private ChessGame.TeamColor findPlayerColor(ConnectCommand command) throws IOException {
+        try {
+            GameData game = gameDAO.getGame(command.getGameID());
+            AuthData auth = authDAO.getAuth(command.getAuthToken());
+            if(Objects.equals(game.whiteUsername(), auth.username())) {
+                return ChessGame.TeamColor.WHITE;
+            } else if (Objects.equals(game.blackUsername(), auth.username())) {
+                return ChessGame.TeamColor.BLACK;
+            } else {
+                return null;
+            }
+
+        } catch (DataAccessException e) {
+            throw new IOException(e.getMessage());
+        }
     }
 }

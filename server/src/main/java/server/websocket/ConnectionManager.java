@@ -1,6 +1,8 @@
 package server.websocket;
 
+import chess.ChessGame;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.commands.ConnectCommand;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -22,6 +24,22 @@ public class ConnectionManager {
     public void remove(Integer gameID, Session session) {
         games.get(gameID).remove(session);
     }
+    public void addToGame(ConnectCommand command, Session session, ChessGame.TeamColor color) {
+        int id = command.getGameID();
+        if(games.get(id) == null) {
+            games.put(id, new GameManager());
+        }
+        switch(color) {
+            case WHITE -> games.get(id).addWhite(session);
+            case BLACK -> games.get(id).addBlack(session);
+            case null -> games.get(id).addObserver(session);
+            // error handling?
+        }
+
+
+    }
+    // how should I organize this? having addWhite and addBlack repeated in the Connection- and GameManager classes seems redundant.
+    // Maybe logic for deciding where each connection goes should be in this class, leaving the WebSocketHandler to just call into here
 
     public void broadcast(Session excludeSession, ServerMessage serverMessage) throws IOException {
         String msg = serverMessage.toString();

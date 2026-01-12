@@ -29,7 +29,7 @@ public class Server {
             this.gameService = new GameService(authDAO, gameDAO);
             this.userHandler = new UserJsonHandler(userService);
             this.gameHandler = new GameJsonHandler(gameService);
-            this.webSocketHandler = new WebSocketHandler(userService, gameService);
+            this.webSocketHandler = new WebSocketHandler(userService, gameService, gameDAO, userDAO, authDAO);
         } catch (DataAccessException e) {
             throw new RuntimeException(String.format("Error: unable to start server: %s%n", e.getMessage()));
         }
@@ -44,6 +44,12 @@ public class Server {
         javalin.post("/game", this::createGame);
         javalin.put("/game", this::joinGame);
         javalin.delete("/db", this::clear);
+
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
+        });
     }
 
     private void register(Context context) {
