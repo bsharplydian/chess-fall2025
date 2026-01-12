@@ -68,7 +68,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
     private void connect(WsMessageContext context, ConnectCommand command) throws IOException {
         System.out.println("trying to connect to game " + command.getGameID());
-        connectionManager.addToGame(command, context.session, findPlayerColor(command));
+        connectionManager.addToGame(command, context.session, findPlayerColor(command), findPlayerUsername(command));
     }
     private void makeMove(WsMessageContext context) throws IOException, DataAccessException {
 
@@ -77,15 +77,24 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private ChessGame.TeamColor findPlayerColor(ConnectCommand command) throws IOException {
         try {
             GameData game = gameDAO.getGame(command.getGameID());
-            AuthData auth = authDAO.getAuth(command.getAuthToken());
-            if(Objects.equals(game.whiteUsername(), auth.username())) {
+            String username = findPlayerUsername(command);
+            if(Objects.equals(game.whiteUsername(), username)) {
                 return ChessGame.TeamColor.WHITE;
-            } else if (Objects.equals(game.blackUsername(), auth.username())) {
+            } else if (Objects.equals(game.blackUsername(), username)) {
                 return ChessGame.TeamColor.BLACK;
             } else {
                 return null;
             }
 
+        } catch (DataAccessException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
+
+    private String findPlayerUsername(ConnectCommand command) throws IOException {
+        try {
+            AuthData auth = authDAO.getAuth(command.getAuthToken());
+            return auth.username();
         } catch (DataAccessException e) {
             throw new IOException(e.getMessage());
         }

@@ -13,7 +13,7 @@ public class ConnectionManager {
     public final ConcurrentHashMap<Integer, GameManager> games = new ConcurrentHashMap<>();
 
     public void addWhite(Integer gameID, Session session) {
-        games.get(gameID).addWhite(session);
+//        games.get(gameID).addWhite(session);
     }
     public void addBlack(Integer gameID, Session session) {
         games.get(gameID).addBlack(session);
@@ -24,13 +24,13 @@ public class ConnectionManager {
     public void remove(Integer gameID, Session session) {
         games.get(gameID).remove(session);
     }
-    public void addToGame(ConnectCommand command, Session session, ChessGame.TeamColor color) {
+    public void addToGame(ConnectCommand command, Session session, ChessGame.TeamColor color, String username) throws IOException{
         int id = command.getGameID();
         if(games.get(id) == null) {
             games.put(id, new GameManager());
         }
         switch(color) {
-            case WHITE -> games.get(id).addWhite(session);
+            case WHITE -> games.get(id).addWhite(session, username);
             case BLACK -> games.get(id).addBlack(session);
             case null -> games.get(id).addObserver(session);
             // error handling?
