@@ -1,44 +1,83 @@
 package server.websocket;
 
 import chess.ChessGame;
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
+import dataaccess.exceptions.DataAccessException;
+import model.AuthData;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.ConnectCommand;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
     public final ConcurrentHashMap<Session, Session> connections = new ConcurrentHashMap<>();
     public final ConcurrentHashMap<Integer, GameManager> games = new ConcurrentHashMap<>();
-
-    public void addWhite(Integer gameID, Session session) {
-//        games.get(gameID).addWhite(session);
+    AuthDAO authDAO;
+    GameDAO gameDAO;
+    public ConnectionManager(AuthDAO authDAO, GameDAO gameDAO) {
+        this.authDAO = authDAO;
+        this.gameDAO = gameDAO;
     }
-    public void addBlack(Integer gameID, Session session) {
-//        games.get(gameID).addBlack(session);
-    }
-    public void addObserver(Integer gameID, Session session) {
-        games.get(gameID).addObserver(session);
+    public void addObserver(Integer gameID, Session session) throws IOException{
+        games.get(gameID).addObserver(session, getGame(gameID));
     }
     public void remove(Integer gameID, Session session) {
         games.get(gameID).remove(session);
     }
-    public void addToGame(ConnectCommand command, Session session, ChessGame.TeamColor color, String username) throws IOException{
+    public void addToGame(ConnectCommand command, Session session) throws IOException{
         int id = command.getGameID();
         if(games.get(id) == null) {
             games.put(id, new GameManager());
         }
+        ChessGame.TeamColor color = getPlayerColor(command);
         switch(color) {
-            case WHITE, BLACK -> games.get(id).addPlayer(session, username, color);
-            case null -> games.get(id).addObserver(session);
+            case WHITE, BLACK -> games.get(id).addPlayer(session, getPlayerUsername(command), color, getGame(id));
+            case null -> games.get(id).addObserver(session, getGame(id));
             // error handling?
         }
 
 
     }
-    // how should I organize this? having addWhite and addBlack repeated in the Connection- and GameManager classes seems redundant.
-    // Maybe logic for deciding where each connection goes should be in this class, leaving the WebSocketHandler to just call into here
+
+
+    private ChessGame.TeamColor getPlayerColor(ConnectCommand command) throws IOException {
+        try {
+            GameData game = gameDAO.getGame(command.getGameID());
+            String username = getPlayerUsername(command);
+            if(Objects.equals(game.whiteUsername(), username)) {
+                return ChessGame.TeamColor.WHITE;
+            } else if (Objects.equals(game.blackUsername(), username)) {
+                return ChessGame.TeamColor.BLACK;
+            } else {
+                return null;
+            }
+
+        } catch (DataAccessException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
+
+    private String getPlayerUsername(ConnectCommand command) throws IOException {
+        try {
+            AuthData auth = authDAO.getAuth(command.getAuthToken());
+            return auth.username();
+        } catch (DataAccessException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
+
+    private ChessGame getGame(int id) throws IOException {
+        try {
+            return gameDAO.getGame(id).game();
+        } catch (DataAccessException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
 
     public void broadcast(Session excludeSession, ServerMessage serverMessage) throws IOException {
         String msg = serverMessage.toString();

@@ -19,12 +19,13 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
-    ConnectionManager connectionManager = new ConnectionManager();
+    ConnectionManager connectionManager;
     UserService userService;
     GameService gameService;
     GameDAO gameDAO;
     UserDAO userDAO;
     AuthDAO authDAO;
+
 
     public WebSocketHandler(UserService userService, GameService gameService, GameDAO gameDAO, UserDAO userDAO, AuthDAO authDAO) {
         this.userService = userService;
@@ -32,6 +33,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         this.gameDAO = gameDAO;
         this.userDAO = userDAO;
         this.authDAO = authDAO;
+        this.connectionManager = new ConnectionManager(authDAO, gameDAO);
     }
 
     @Override
@@ -68,35 +70,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
     private void connect(WsMessageContext context, ConnectCommand command) throws IOException {
         System.out.println("trying to connect to game " + command.getGameID());
-        connectionManager.addToGame(command, context.session, findPlayerColor(command), findPlayerUsername(command));
+        connectionManager.addToGame(command, context.session);
     }
     private void makeMove(WsMessageContext context) throws IOException, DataAccessException {
 
     }
 
-    private ChessGame.TeamColor findPlayerColor(ConnectCommand command) throws IOException {
-        try {
-            GameData game = gameDAO.getGame(command.getGameID());
-            String username = findPlayerUsername(command);
-            if(Objects.equals(game.whiteUsername(), username)) {
-                return ChessGame.TeamColor.WHITE;
-            } else if (Objects.equals(game.blackUsername(), username)) {
-                return ChessGame.TeamColor.BLACK;
-            } else {
-                return null;
-            }
 
-        } catch (DataAccessException e) {
-            throw new IOException(e.getMessage());
-        }
-    }
-
-    private String findPlayerUsername(ConnectCommand command) throws IOException {
-        try {
-            AuthData auth = authDAO.getAuth(command.getAuthToken());
-            return auth.username();
-        } catch (DataAccessException e) {
-            throw new IOException(e.getMessage());
-        }
-    }
 }

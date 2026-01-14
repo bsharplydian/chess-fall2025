@@ -17,7 +17,7 @@ public class GameManager {
     public Session blackPlayer = null;
     public final ConcurrentHashMap<Session, Session> observers = new ConcurrentHashMap<>();
 
-    public void addPlayer(Session session, String username, ChessGame.TeamColor color) throws IOException {
+    public void addPlayer(Session session, String username, ChessGame.TeamColor color, ChessGame game) throws IOException {
         switch(color) {
             case WHITE -> whitePlayer = session;
             case BLACK -> blackPlayer = session;
@@ -27,11 +27,11 @@ public class GameManager {
                 String.format("%s joined as %s", username, color.toString().toLowerCase())
         );
         allMessageExcept(session, message);
-        sendMessage(session, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, new ChessGame()));
+        sendMessage(session, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game));
         // need to get actual game from db
     }
 
-    public void addObserver(Session session) {
+    public void addObserver(Session session, ChessGame game) {
         observers.put(session, session);
     }
     public void remove(Session session) {
