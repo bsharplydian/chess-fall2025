@@ -23,9 +23,7 @@ public class ConnectionManager {
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
     }
-    public void addObserver(Integer gameID, Session session) throws IOException{
-        games.get(gameID).addObserver(session, getGame(gameID));
-    }
+
     public void remove(Integer gameID, Session session) {
         games.get(gameID).remove(session);
     }
@@ -37,7 +35,7 @@ public class ConnectionManager {
         ChessGame.TeamColor color = getPlayerColor(command);
         switch(color) {
             case WHITE, BLACK -> games.get(id).addPlayer(session, getPlayerUsername(command), color, getGame(id));
-            case null -> games.get(id).addObserver(session, getGame(id));
+            case null -> games.get(id).addObserver(session, getPlayerUsername(command), getGame(id));
             // error handling?
         }
 

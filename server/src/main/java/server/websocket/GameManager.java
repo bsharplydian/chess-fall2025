@@ -31,8 +31,14 @@ public class GameManager {
         // need to get actual game from db
     }
 
-    public void addObserver(Session session, ChessGame game) {
+    public void addObserver(Session session, String username, ChessGame game) throws IOException {
         observers.put(session, session);
+        NotificationMessage message = new NotificationMessage(
+                ServerMessage.ServerMessageType.NOTIFICATION,
+                String.format("%s is observing", username)
+        );
+        allMessageExcept(session, message);
+        sendMessage(session, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game));
     }
     public void remove(Session session) {
         if(session.equals(whitePlayer)) {
