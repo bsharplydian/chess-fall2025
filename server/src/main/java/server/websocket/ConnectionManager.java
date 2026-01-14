@@ -1,6 +1,7 @@
 package server.websocket;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.exceptions.DataAccessException;
@@ -8,6 +9,7 @@ import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.ConnectCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -27,16 +29,29 @@ public class ConnectionManager {
     public void remove(Integer gameID, Session session) {
         games.get(gameID).remove(session);
     }
-    public void addToGame(ConnectCommand command, Session session) throws IOException{
+    public void addToGame(ConnectCommand command, Session session) throws IOException {
         int id = command.getGameID();
         if(games.get(id) == null) {
             games.put(id, new GameManager());
         }
-        ChessGame.TeamColor color = getPlayerColor(command);
-        switch(color) {
-            case WHITE, BLACK -> games.get(id).addPlayer(session, getPlayerUsername(command), color, getGame(id));
-            case null -> games.get(id).addObserver(session, getPlayerUsername(command), getGame(id));
-            // error handling?
+
+        try {
+            ChessGame.TeamColor color = getPlayerColor(command);
+            switch (color) {
+                case WHITE, BLACK -> games.get(id).addPlayer(session, getPlayerUsername(command), color, getGame(id));
+                case null -> games.get(id).addObserver(session, getPlayerUsername(command), getGame(id));
+            }
+        } catch (BadGameIDException | BadAuthException e) {
+            if(Objects.equals(session, null)) {
+                return;
+            }
+            if(session.isOpen()) {
+                session.getRemote().sendString(
+                        new Gson().toJson(
+                                new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage())
+                        )
+                );
+            }
         }
 
 
@@ -46,6 +61,9 @@ public class ConnectionManager {
     private ChessGame.TeamColor getPlayerColor(ConnectCommand command) throws IOException {
         try {
             GameData game = gameDAO.getGame(command.getGameID());
+            if(game == null) {
+                throw new BadGameIDException("Error: game doesn't exist");
+            }
             String username = getPlayerUsername(command);
             if(Objects.equals(game.whiteUsername(), username)) {
                 return ChessGame.TeamColor.WHITE;
@@ -63,6 +81,9 @@ public class ConnectionManager {
     private String getPlayerUsername(ConnectCommand command) throws IOException {
         try {
             AuthData auth = authDAO.getAuth(command.getAuthToken());
+            if(auth == null) {
+                throw new BadAuthException("Error: unauthorized");
+            }
             return auth.username();
         } catch (DataAccessException e) {
             throw new IOException(e.getMessage());
