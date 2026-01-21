@@ -3,6 +3,7 @@ package server.websocket;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
+import server.websocket.messagedata.NotificationData;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -17,30 +18,30 @@ public class GameManager {
     public Session blackPlayer = null;
     public final ConcurrentHashMap<Session, Session> observers = new ConcurrentHashMap<>();
 
-    public void addPlayer(Session session, String username, ChessGame.TeamColor color, ChessGame game) throws IOException {
-        switch(color) {
+    public void addPlayer(Session session, NotificationData data) throws IOException {
+        switch(data.color()) {
             case WHITE -> whitePlayer = session;
             case BLACK -> blackPlayer = session;
         }
         NotificationMessage message = new NotificationMessage(
                 ServerMessage.ServerMessageType.NOTIFICATION,
-                String.format("%s joined as %s", username, color.toString().toLowerCase())
+                String.format("%s joined as %s", data.username(), data.color().toString().toLowerCase())
         );
         allMessageExcept(session, message);
-        sendMessage(session, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game));
+        sendMessage(session, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, data.game()));
         // need to get actual game from db
     }
 
-    public void addObserver(Session session, String username, ChessGame game) throws IOException {
+    public void addObserver(Session session, NotificationData data) throws IOException {
         observers.put(session, session);
         NotificationMessage message = new NotificationMessage(
                 ServerMessage.ServerMessageType.NOTIFICATION,
-                String.format("%s is observing", username)
+                String.format("%s is observing", data.username())
         );
         allMessageExcept(session, message);
-        sendMessage(session, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game));
+        sendMessage(session, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, data.game()));
     }
-    public void remove(Session session) {
+    public void remove(Session session, NotificationData data) throws IOException{
         if(session.equals(whitePlayer)) {
             whitePlayer = null;
         } else if (session.equals(blackPlayer)) {
@@ -48,6 +49,11 @@ public class GameManager {
         } else {
             observers.remove(session);
         }
+        NotificationMessage message = new NotificationMessage(
+                ServerMessage.ServerMessageType.NOTIFICATION,
+                String.format("%s left the game", data.username())
+        );
+        allMessageExcept(session, message);
     }
 
     public void sendMessage(Session session, ServerMessage msg) throws IOException {

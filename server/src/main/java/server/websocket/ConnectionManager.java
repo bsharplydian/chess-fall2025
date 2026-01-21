@@ -8,6 +8,7 @@ import dataaccess.exceptions.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import server.websocket.messagedata.NotificationData;
 import websocket.commands.ConnectCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.ServerMessage;
@@ -26,9 +27,6 @@ public class ConnectionManager {
         this.gameDAO = gameDAO;
     }
 
-    public void remove(Integer gameID, Session session) {
-        games.get(gameID).remove(session);
-    }
     public void addToGame(ConnectCommand command, Session session) throws IOException {
         int id = command.getGameID();
         if(games.get(id) == null) {
@@ -38,8 +36,8 @@ public class ConnectionManager {
         try {
             ChessGame.TeamColor color = getPlayerColor(command);
             switch (color) {
-                case WHITE, BLACK -> games.get(id).addPlayer(session, getPlayerUsername(command), color, getGame(id));
-                case null -> games.get(id).addObserver(session, getPlayerUsername(command), getGame(id));
+                case WHITE, BLACK -> games.get(id).addPlayer(session, getNotifData(command));
+                case null -> games.get(id).addObserver(session, getNotifData(command));
             }
         } catch (BadGameIDException | BadAuthException e) {
             if(Objects.equals(session, null)) {
@@ -57,7 +55,15 @@ public class ConnectionManager {
 
     }
 
-
+    private NotificationData getNotifData(ConnectCommand command) throws IOException{
+        return new NotificationData(
+                getPlayerUsername(command),
+                getPlayerColor(command),
+                getGame(command.getGameID()),
+                null,
+                null);
+        //make a way to get the move and opponent username
+    }
     private ChessGame.TeamColor getPlayerColor(ConnectCommand command) throws IOException {
         try {
             GameData game = gameDAO.getGame(command.getGameID());
