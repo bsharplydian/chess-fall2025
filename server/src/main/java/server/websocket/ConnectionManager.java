@@ -76,9 +76,19 @@ public class ConnectionManager {
             return;
         }
         try {
-            GameData oldGameData = gameDAO.getGame(command.getGameID());
-            oldGameData.game().makeMove(command.getMove());
-            games.get(id).allMessage(new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, oldGameData.game()));
+            GameData gameData = gameDAO.getGame(command.getGameID());
+            if(getPlayerColor(command) == null) {
+                throw new InvalidMoveException("you are not a player");
+            }
+            if(gameData.game().getTeamTurn() != getPlayerColor(command)) {
+                throw new InvalidMoveException("it is not your turn");
+            }
+
+            gameData.game().makeMove(command.getMove());
+
+            gameDAO.updateGame(gameData);
+
+            games.get(id).allMessage(new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game()));
             games.get(id).allMessageExcept(session,
                     new NotificationMessage(
                             ServerMessage.ServerMessageType.NOTIFICATION,
