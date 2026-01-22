@@ -17,7 +17,7 @@ import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
+import websocket.messages.ServerMessage.ServerMessageType;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -46,7 +46,7 @@ public class ConnectionManager {
                 case null -> games.get(id).addObserver(session, getNotifData(command));
             }
         } catch (BadGameIDException | BadAuthException e) {
-            games.get(id).sendMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
+            games.get(id).sendMessage(session, new ErrorMessage(ServerMessageType.ERROR, e.getMessage()));
         }
     }
 
@@ -72,7 +72,7 @@ public class ConnectionManager {
         try{
             getPlayerUsername(command);
         } catch (BadAuthException e) {
-            games.get(id).sendMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
+            games.get(id).sendMessage(session, new ErrorMessage(ServerMessageType.ERROR, e.getMessage()));
             return;
         }
         try {
@@ -88,10 +88,10 @@ public class ConnectionManager {
 
             gameDAO.updateGame(gameData);
 
-            games.get(id).allMessage(new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game()));
+            games.get(id).allMessage(new LoadGameMessage(ServerMessageType.LOAD_GAME, gameData.game()));
             games.get(id).allMessageExcept(session,
                     new NotificationMessage(
-                            ServerMessage.ServerMessageType.NOTIFICATION,
+                            ServerMessageType.NOTIFICATION,
                             String.format("%s moved from %s to %s",
                                     getPlayerUsername(command),
                                     command.getMove().getStartPosition(),
@@ -99,10 +99,20 @@ public class ConnectionManager {
                             )
                     )
             );
+            ChessGame.TeamColor opponentColor = gameData.game().invertColor(getPlayerColor(command));
+
+            if(gameData.game().isInCheckmate(opponentColor)) {
+                games.get(id).allMessage(new NotificationMessage(ServerMessageType.NOTIFICATION, "OPPONENT USERNAME is in checkmate"));
+            } else if(gameData.game().isInCheck(opponentColor)) {
+                games.get(id).allMessage(new NotificationMessage(ServerMessageType.NOTIFICATION, "OPPONENT USERNAME is in check"));
+            } else if(gameData.game().isInStalemate(opponentColor)) {
+                games.get(id).allMessage(new NotificationMessage(ServerMessageType.NOTIFICATION, "OPPONENT USERNAME is in stalemate"));
+            }
+
         } catch (DataAccessException e) {
             throw new IOException(e);
         } catch (InvalidMoveException e) {
-            games.get(id).sendMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
+            games.get(id).sendMessage(session, new ErrorMessage(ServerMessageType.ERROR, e.getMessage()));
         }
     }
 
@@ -113,7 +123,7 @@ public class ConnectionManager {
                 getGame(command.getGameID()),
                 null,
                 null);
-        //make a way to get the move and opponent username
+        //make a way to get the opponent username
     }
 
     private NotificationData getNotifData(MakeMoveCommand command) throws IOException {

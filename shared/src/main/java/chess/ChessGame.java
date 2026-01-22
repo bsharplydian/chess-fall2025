@@ -273,6 +273,14 @@ public class ChessGame {
         return true;
     }
 
+    public TeamColor invertColor(TeamColor teamColor) {
+        return switch(teamColor) {
+            case WHITE -> TeamColor.BLACK;
+            case BLACK -> TeamColor.WHITE;
+            case null -> null;
+        };
+    }
+
     /**
      * Sets this game's chessboard with a given board
      *
