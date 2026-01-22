@@ -10,6 +10,8 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import server.websocket.messagedata.NotificationData;
 import websocket.commands.ConnectCommand;
+import websocket.commands.LeaveCommand;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.ServerMessage;
 
@@ -51,11 +53,26 @@ public class ConnectionManager {
                 );
             }
         }
-
-
     }
 
-    private NotificationData getNotifData(ConnectCommand command) throws IOException{
+    public void removeFromGame(LeaveCommand command, Session session) throws IOException {
+        int id = command.getGameID();
+        try {
+            games.get(id).remove(session, getNotifData(command));
+            GameData oldGameData = gameDAO.getGame(command.getGameID());
+            ChessGame.TeamColor color = getPlayerColor(command);
+            GameData newGameData = switch(color) {
+                case WHITE -> new GameData(id, null, oldGameData.blackUsername(), oldGameData.gameName(), oldGameData.game());
+                case BLACK -> new GameData(id, oldGameData.whiteUsername(), null, oldGameData.gameName(), oldGameData.game());
+                case null -> oldGameData;
+            };
+            gameDAO.updateGame(newGameData);
+        } catch (DataAccessException e) {
+
+        }
+    }
+
+    private NotificationData getNotifData(UserGameCommand command) throws IOException{
         return new NotificationData(
                 getPlayerUsername(command),
                 getPlayerColor(command),
@@ -64,7 +81,7 @@ public class ConnectionManager {
                 null);
         //make a way to get the move and opponent username
     }
-    private ChessGame.TeamColor getPlayerColor(ConnectCommand command) throws IOException {
+    private ChessGame.TeamColor getPlayerColor(UserGameCommand command) throws IOException {
         try {
             GameData game = gameDAO.getGame(command.getGameID());
             if(game == null) {
@@ -84,7 +101,7 @@ public class ConnectionManager {
         }
     }
 
-    private String getPlayerUsername(ConnectCommand command) throws IOException {
+    private String getPlayerUsername(UserGameCommand command) throws IOException {
         try {
             AuthData auth = authDAO.getAuth(command.getAuthToken());
             if(auth == null) {

@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import service.GameService;
 import service.UserService;
 import websocket.commands.ConnectCommand;
+import websocket.commands.LeaveCommand;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             UserGameCommand command = new Gson().fromJson(context.message(), UserGameCommand.class);
             switch(command.getCommandType()) {
-                case LEAVE -> leave(context);
+                case LEAVE -> leave(context, new Gson().fromJson(context.message(), LeaveCommand.class));
                 case RESIGN -> resign(context);
                 case CONNECT -> connect(context, new Gson().fromJson(context.message(), ConnectCommand.class));
                 case MAKE_MOVE -> makeMove(context);
@@ -62,8 +63,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    private void leave(WsMessageContext context) throws IOException {
-
+    private void leave(WsMessageContext context, LeaveCommand command) throws IOException {
+        connectionManager.removeFromGame(command, context.session);
     }
     private void resign(WsMessageContext context) throws IOException {
 

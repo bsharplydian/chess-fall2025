@@ -29,7 +29,6 @@ public class GameManager {
         );
         allMessageExcept(session, message);
         sendMessage(session, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, data.game()));
-        // need to get actual game from db
     }
 
     public void addObserver(Session session, NotificationData data) throws IOException {
