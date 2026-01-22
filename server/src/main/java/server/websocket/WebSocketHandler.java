@@ -14,6 +14,7 @@ import service.GameService;
 import service.UserService;
 import websocket.commands.ConnectCommand;
 import websocket.commands.LeaveCommand;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case LEAVE -> leave(context, new Gson().fromJson(context.message(), LeaveCommand.class));
                 case RESIGN -> resign(context);
                 case CONNECT -> connect(context, new Gson().fromJson(context.message(), ConnectCommand.class));
-                case MAKE_MOVE -> makeMove(context);
+                case MAKE_MOVE -> makeMove(context, new Gson().fromJson(context.message(), MakeMoveCommand.class));
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -73,8 +74,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("trying to connect to game " + command.getGameID());
         connectionManager.addToGame(command, context.session);
     }
-    private void makeMove(WsMessageContext context) throws IOException, DataAccessException {
-
+    private void makeMove(WsMessageContext context, MakeMoveCommand command) throws IOException, DataAccessException {
+    connectionManager.makeMove(command, context.session);
     }
 
 

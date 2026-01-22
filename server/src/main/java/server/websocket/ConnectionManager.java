@@ -1,6 +1,7 @@
 package server.websocket;
 
 import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
@@ -11,8 +12,11 @@ import org.eclipse.jetty.websocket.api.Session;
 import server.websocket.messagedata.NotificationData;
 import websocket.commands.ConnectCommand;
 import websocket.commands.LeaveCommand;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -42,16 +46,7 @@ public class ConnectionManager {
                 case null -> games.get(id).addObserver(session, getNotifData(command));
             }
         } catch (BadGameIDException | BadAuthException e) {
-            if(Objects.equals(session, null)) {
-                return;
-            }
-            if(session.isOpen()) {
-                session.getRemote().sendString(
-                        new Gson().toJson(
-                                new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage())
-                        )
-                );
-            }
+            games.get(id).sendMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
         }
     }
 
@@ -68,7 +63,36 @@ public class ConnectionManager {
             };
             gameDAO.updateGame(newGameData);
         } catch (DataAccessException e) {
+            throw new IOException(e);
+        }
+    }
 
+    public void makeMove(MakeMoveCommand command, Session session) throws IOException {
+        int id = command.getGameID();
+        try{
+            getPlayerUsername(command);
+        } catch (BadAuthException e) {
+            games.get(id).sendMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
+            return;
+        }
+        try {
+            GameData oldGameData = gameDAO.getGame(command.getGameID());
+            oldGameData.game().makeMove(command.getMove());
+            games.get(id).allMessage(new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, oldGameData.game()));
+            games.get(id).allMessageExcept(session,
+                    new NotificationMessage(
+                            ServerMessage.ServerMessageType.NOTIFICATION,
+                            String.format("%s moved from %s to %s",
+                                    getPlayerUsername(command),
+                                    command.getMove().getStartPosition(),
+                                    command.getMove().getEndPosition()
+                            )
+                    )
+            );
+        } catch (DataAccessException e) {
+            throw new IOException(e);
+        } catch (InvalidMoveException e) {
+            games.get(id).sendMessage(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
         }
     }
 
@@ -81,6 +105,16 @@ public class ConnectionManager {
                 null);
         //make a way to get the move and opponent username
     }
+
+    private NotificationData getNotifData(MakeMoveCommand command) throws IOException {
+        return new NotificationData(
+                getPlayerUsername(command),
+                getPlayerColor(command),
+                getGame(command.getGameID()),
+                command.getMove(),
+                null);
+    }
+
     private ChessGame.TeamColor getPlayerColor(UserGameCommand command) throws IOException {
         try {
             GameData game = gameDAO.getGame(command.getGameID());
@@ -121,14 +155,5 @@ public class ConnectionManager {
         }
     }
 
-    public void broadcast(Session excludeSession, ServerMessage serverMessage) throws IOException {
-        String msg = serverMessage.toString();
-        for (Session c : connections.values()) {
-            if(c.isOpen()) {
-                if(!c.equals(excludeSession)) {
-                    c.getRemote().sendString(msg);
-                }
-            }
-        }
-    }
+
 }
