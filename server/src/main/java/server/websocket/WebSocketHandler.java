@@ -12,10 +12,7 @@ import model.GameData;
 import org.jetbrains.annotations.NotNull;
 import service.GameService;
 import service.UserService;
-import websocket.commands.ConnectCommand;
-import websocket.commands.LeaveCommand;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -55,7 +52,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand command = new Gson().fromJson(context.message(), UserGameCommand.class);
             switch(command.getCommandType()) {
                 case LEAVE -> leave(context, new Gson().fromJson(context.message(), LeaveCommand.class));
-                case RESIGN -> resign(context);
+                case RESIGN -> resign(context, new Gson().fromJson(context.message(), ResignCommand.class));
                 case CONNECT -> connect(context, new Gson().fromJson(context.message(), ConnectCommand.class));
                 case MAKE_MOVE -> makeMove(context, new Gson().fromJson(context.message(), MakeMoveCommand.class));
             }
@@ -67,8 +64,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void leave(WsMessageContext context, LeaveCommand command) throws IOException {
         connectionManager.removeFromGame(command, context.session);
     }
-    private void resign(WsMessageContext context) throws IOException {
-
+    private void resign(WsMessageContext context, ResignCommand command) throws IOException {
+        connectionManager.resign(command, context.session);
     }
     private void connect(WsMessageContext context, ConnectCommand command) throws IOException {
         System.out.println("trying to connect to game " + command.getGameID());

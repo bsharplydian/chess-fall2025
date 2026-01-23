@@ -10,10 +10,7 @@ import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import server.websocket.messagedata.NotificationData;
-import websocket.commands.ConnectCommand;
-import websocket.commands.LeaveCommand;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -115,7 +112,25 @@ public class ConnectionManager {
             games.get(id).sendMessage(session, new ErrorMessage(ServerMessageType.ERROR, e.getMessage()));
         }
     }
+    public void resign(ResignCommand command, Session session) throws IOException {
+        if(getPlayerColor(command) == null) {
+            games.get(command.getGameID()).sendMessage(session, new ErrorMessage(ServerMessageType.ERROR, "you are not a player"));
+            return;
+        }
+        try {
+            GameData gameData = gameDAO.getGame(command.getGameID());
+            gameData.game().setTeamTurn(null);
+            games.get(command.getGameID()).allMessage(
+                    new NotificationMessage(
+                            ServerMessageType.NOTIFICATION,
+                            String.format("%s has resigned", getPlayerUsername(command))
+                    )
+            );
+        } catch (DataAccessException e) {
+            throw new IOException(e);
+        }
 
+    }
     private NotificationData getNotifData(UserGameCommand command) throws IOException{
         return new NotificationData(
                 getPlayerUsername(command),
