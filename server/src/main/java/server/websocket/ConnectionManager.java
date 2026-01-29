@@ -2,7 +2,6 @@ package server.websocket;
 
 import chess.ChessGame;
 import chess.InvalidMoveException;
-import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.exceptions.DataAccessException;
@@ -77,13 +76,16 @@ public class ConnectionManager {
             if(getPlayerColor(command) == null) {
                 throw new InvalidMoveException("you are not a player");
             }
+            if(gameData.game().isGameOver()) {
+                throw new InvalidMoveException("game is over");
+            }
             if(gameData.game().getTeamTurn() != getPlayerColor(command)) {
                 throw new InvalidMoveException("it is not your turn");
             }
 
             gameData.game().makeMove(command.getMove());
 
-            gameDAO.updateGame(gameData);
+
 
             games.get(id).allMessage(new LoadGameMessage(ServerMessageType.LOAD_GAME, gameData.game()));
             games.get(id).allMessageExcept(session,
@@ -100,11 +102,15 @@ public class ConnectionManager {
 
             if(gameData.game().isInCheckmate(opponentColor)) {
                 games.get(id).allMessage(new NotificationMessage(ServerMessageType.NOTIFICATION, "OPPONENT USERNAME is in checkmate"));
+                gameData.game().setGameOver(true);
             } else if(gameData.game().isInCheck(opponentColor)) {
                 games.get(id).allMessage(new NotificationMessage(ServerMessageType.NOTIFICATION, "OPPONENT USERNAME is in check"));
             } else if(gameData.game().isInStalemate(opponentColor)) {
                 games.get(id).allMessage(new NotificationMessage(ServerMessageType.NOTIFICATION, "OPPONENT USERNAME is in stalemate"));
             }
+
+
+            gameDAO.updateGame(gameData);
 
         } catch (DataAccessException e) {
             throw new IOException(e);
@@ -112,6 +118,8 @@ public class ConnectionManager {
             games.get(id).sendMessage(session, new ErrorMessage(ServerMessageType.ERROR, e.getMessage()));
         }
     }
+
+
     public void resign(ResignCommand command, Session session) throws IOException {
         if(getPlayerColor(command) == null) {
             games.get(command.getGameID()).sendMessage(session, new ErrorMessage(ServerMessageType.ERROR, "you are not a player"));
@@ -119,7 +127,12 @@ public class ConnectionManager {
         }
         try {
             GameData gameData = gameDAO.getGame(command.getGameID());
-            gameData.game().setTeamTurn(null);
+            if(gameData.game().isGameOver()) {
+                games.get(command.getGameID()).sendMessage(session, new ErrorMessage(ServerMessageType.ERROR, "game is over"));
+                return;
+            }
+            gameData.game().setGameOver(true);
+            gameDAO.updateGame(gameData);
             games.get(command.getGameID()).allMessage(
                     new NotificationMessage(
                             ServerMessageType.NOTIFICATION,

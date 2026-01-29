@@ -19,6 +19,8 @@ public class ChessGame {
     private final CastleTracker whiteCastleTracker;
     private boolean enPassantOpen = false;
     private ChessPosition enPassantPosition;
+    private boolean gameOver = false;
+
     public ChessGame() {
         currentTeamTurn = TeamColor.WHITE;
         this.currentBoard.resetBoard();
@@ -159,10 +161,7 @@ public class ChessGame {
         handleCastleMove(move, thisPiece);
         handleEnPassantMove(move);
 
-        currentTeamTurn = switch(currentTeamTurn) {
-            case BLACK -> TeamColor.WHITE;
-            case WHITE -> TeamColor.BLACK;
-        };
+        currentTeamTurn = invertColor(currentTeamTurn);
     }
 
     private void handleCastleMove(ChessMove move, ChessPiece thisPiece) {
@@ -299,5 +298,12 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return currentBoard;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+    public boolean isGameOver() {
+        return this.gameOver;
     }
 }
