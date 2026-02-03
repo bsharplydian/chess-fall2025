@@ -64,7 +64,7 @@ public class InGameClient implements Client {
             default -> throw new HttpResponseException("Usage: join [id] [WHITE|BLACK]");
         };
         ws.startServerConnection();
-        ws.connectToGame(facade.getAuth(), id, teamColor);
+        ws.connectToGame(facade.getAuth(), id);
         return this;
     }
 }

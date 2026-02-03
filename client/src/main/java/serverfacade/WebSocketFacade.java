@@ -37,7 +37,7 @@ public class WebSocketFacade extends Endpoint {
             throw new HttpResponseException(ex.getMessage());
         }
     }
-    public void connectToGame(String authToken, int gameID, ChessGame.TeamColor color) throws HttpResponseException {
+    public void connectToGame(String authToken, int gameID) throws HttpResponseException {
         try {
             UserGameCommand command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));

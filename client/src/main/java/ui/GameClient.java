@@ -6,12 +6,12 @@ import serverfacade.ServerFacade;
 import static ui.EscapeSequences.RESET_TEXT_COLOR;
 import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 
-public class ClientManager {
+public class GameClient {
     Client currentClient;
     PreLoginClient preLoginClient;
     PostLoginClient postLoginClient;
     InGameClient inGameClient;
-    public ClientManager(ServerFacade facade) {
+    public GameClient(ServerFacade facade) {
         this.preLoginClient = new PreLoginClient(facade);
         this.postLoginClient = new PostLoginClient(facade);
         this.inGameClient = new InGameClient(facade);
