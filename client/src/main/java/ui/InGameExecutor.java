@@ -5,11 +5,11 @@ import serverfacade.HttpResponseException;
 import serverfacade.ServerFacade;
 import serverfacade.WebSocketFacade;
 
-public class InGameClient implements Client {
+public class InGameExecutor implements Executor {
     WebSocketFacade ws;
     ServerFacade facade;
 
-    public InGameClient(ServerFacade facade) {
+    public InGameExecutor(ServerFacade facade) {
         this.facade = facade;
     }
     @Override
@@ -50,7 +50,7 @@ public class InGameClient implements Client {
         return "hl not implemented";
     }
 
-    public InGameClient start(String gameID, String color) throws HttpResponseException {
+    public InGameExecutor start(String gameID, String color) throws HttpResponseException {
         int id;
         try{
             id = Integer.parseInt(gameID);

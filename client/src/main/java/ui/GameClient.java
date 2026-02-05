@@ -7,22 +7,22 @@ import static ui.EscapeSequences.RESET_TEXT_COLOR;
 import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 
 public class GameClient {
-    Client currentClient;
-    PreLoginClient preLoginClient;
-    PostLoginClient postLoginClient;
-    InGameClient inGameClient;
+    Executor currentExecutor;
+    PreLoginExecutor preLoginClient;
+    PostLoginExecutor postLoginClient;
+    InGameExecutor inGameClient;
     public GameClient(ServerFacade facade) {
-        this.preLoginClient = new PreLoginClient(facade);
-        this.postLoginClient = new PostLoginClient(facade);
-        this.inGameClient = new InGameClient(facade);
-        this.currentClient = this.preLoginClient;
+        this.preLoginClient = new PreLoginExecutor(facade);
+        this.postLoginClient = new PostLoginExecutor(facade);
+        this.inGameClient = new InGameExecutor(facade);
+        this.currentExecutor = this.preLoginClient;
     }
 
     public String eval(String input) {
         String[] params = input.split(" ");
         String ret;
         try {
-            ret = currentClient.eval(input);
+            ret = currentExecutor.eval(input);
             setCurrentClient(params);
         } catch (HttpResponseException e) {
             ret = e.getMessage();
@@ -36,19 +36,19 @@ public class GameClient {
 
     }
     public String getPrompt() {
-        if(currentClient instanceof PreLoginClient) {
+        if(currentExecutor instanceof PreLoginExecutor) {
             return "\n" + RESET_TEXT_COLOR + ">> " + SET_TEXT_COLOR_GREEN;
-        } else if (currentClient instanceof PostLoginClient) {
+        } else if (currentExecutor instanceof PostLoginExecutor) {
             return "\n" + RESET_TEXT_COLOR + "logged in >> " + SET_TEXT_COLOR_GREEN;
         }
         return null;
     }
     private void setCurrentClient(String[] params) throws HttpResponseException {
-        currentClient = switch(params[0]) {
-            case "register", "login" -> currentClient instanceof PreLoginClient ? postLoginClient                          : currentClient;
-            case "logout" -> currentClient instanceof PostLoginClient           ? preLoginClient                           : currentClient;
-            case "join", "observe" -> currentClient instanceof PostLoginClient  ? inGameClient.start(params[1], params[2]) : currentClient;
-            default -> currentClient;
+        currentExecutor = switch(params[0]) {
+            case "register", "login" -> currentExecutor instanceof PreLoginExecutor ? postLoginClient                          : currentExecutor;
+            case "logout" -> currentExecutor instanceof PostLoginExecutor ? preLoginClient                           : currentExecutor;
+            case "join", "observe" -> currentExecutor instanceof PostLoginExecutor ? inGameClient.start(params[1], params[2]) : currentExecutor;
+            default -> currentExecutor;
         };
     }
 }

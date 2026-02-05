@@ -7,10 +7,10 @@ import model.results.RegisterResult;
 import serverfacade.HttpResponseException;
 import serverfacade.ServerFacade;
 
-public class PreLoginClient implements Client {
+public class PreLoginExecutor implements Executor {
     ServerFacade facade;
     ValidatorPreLogin validator = new ValidatorPreLogin();
-    public PreLoginClient(ServerFacade facade) {
+    public PreLoginExecutor(ServerFacade facade) {
         this.facade = facade;
     }
 

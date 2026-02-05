@@ -2,6 +2,6 @@ package ui;
 
 import serverfacade.HttpResponseException;
 
-public interface Client {
+public interface Executor {
     public String eval(String input) throws HttpResponseException;
 }

@@ -14,12 +14,12 @@ import java.util.ArrayList;
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
 
-public class PostLoginClient implements Client {
+public class PostLoginExecutor implements Executor {
     ArrayList<Integer> serverGameIDs = new ArrayList<>();
     ServerFacade facade;
     BoardPrinter printer = new BoardPrinter();
 
-    public PostLoginClient(ServerFacade facade) {
+    public PostLoginExecutor(ServerFacade facade) {
         this.facade = facade;
     }
 
