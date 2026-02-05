@@ -2,7 +2,7 @@ package ui;
 
 import java.util.Set;
 
-public class ValidatorPreLogin extends Validator{
+public class PreLoginValidator extends Validator{
     @Override
     public Command validate(String[] params) throws SyntaxException {
         Command command = getCommand(params[0]);

@@ -9,7 +9,7 @@ import serverfacade.ServerFacade;
 
 public class PreLoginExecutor implements Executor {
     ServerFacade facade;
-    ValidatorPreLogin validator = new ValidatorPreLogin();
+    PreLoginValidator validator = new PreLoginValidator();
     public PreLoginExecutor(ServerFacade facade) {
         this.facade = facade;
     }
