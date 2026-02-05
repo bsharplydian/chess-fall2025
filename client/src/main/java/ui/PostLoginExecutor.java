@@ -44,32 +44,21 @@ public class PostLoginExecutor implements Executor {
     }
 
     private String handleLogout(String[] params) throws HttpResponseException {
-        if(params.length != 1) {
-            throw new HttpResponseException("Usage: logout");
-        }
+        validator.validateLogout(params);
+
         facade.logout(facade.getAuth());
         return "Logged out";
     }
 
     private String handleCreate(String[] params) throws HttpResponseException {
-        if(params.length != 2) {
-            throw new HttpResponseException("Usage: create [name]");
-        }
-        try{
-            Integer.parseInt(params[1]);
-            throw new HttpResponseException("Game names cannot be numerals");
-        } catch (NumberFormatException e) {
-            // string was not a number
-        }
-
+        validator.validateCreate(params);
         facade.createGame(new CreateGameRequest(params[1]), facade.getAuth());
         return "Created " + params[1];
     }
 
     private String handleList(String[] params) throws HttpResponseException {
-        if(params.length != 1) {
-            throw new HttpResponseException("Usage: list");
-        }
+        validator.validateList(params);
+
         ListGamesResult result = facade.listGames(facade.getAuth());
         StringBuilder gameList = new StringBuilder();
         serverGameIDs.clear();
@@ -87,22 +76,14 @@ public class PostLoginExecutor implements Executor {
     }
 
     private String handleJoin(String[] params) throws HttpResponseException {
-        if(params.length != 3) {
-            throw new HttpResponseException("Usage: join [id] [WHITE|BLACK]");
-        }
-        try{
-            Integer.parseInt(params[1]);
-        } catch (NumberFormatException e) {
-            throw new HttpResponseException("Invalid game ID");
-        }
-        if(Integer.parseInt(params[1]) > serverGameIDs.size() || Integer.parseInt(params[1]) <= 0) {
-            throw new HttpResponseException("Invalid game ID");
-        }
+        validator.validateJoin(params, serverGameIDs.size());
+
         ChessGame.TeamColor color = switch(params[2].toUpperCase()) {
-            case "WHITE", "W" -> WHITE;
+            case "WHITE, W" -> WHITE;
             case "BLACK", "B" -> BLACK;
-            default -> throw new HttpResponseException("Usage: join [id] [WHITE|BLACK]");
+            default -> null; // not possible after validation
         };
+
         JoinGameRequest request = new JoinGameRequest(color, serverGameIDs.get(Integer.parseInt(params[1])-1));
         facade.joinGame(request, facade.getAuth());
         // add: game board printing in proper color

@@ -1,9 +1,12 @@
 package ui;
 
+import chess.ChessGame;
 import serverfacade.HttpResponseException;
 
 import java.util.Set;
 
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
 import static ui.Validator.Command.*;
 
 public class PostLoginValidator extends Validator {
@@ -14,7 +17,6 @@ public class PostLoginValidator extends Validator {
             case LOGOUT -> validateLogout(params);
             case CREATE -> validateCreate(params);
             case LIST -> validateList(params);
-            case JOIN -> validateJoin(params);
         }
         return command;
     }
@@ -33,20 +35,46 @@ public class PostLoginValidator extends Validator {
         }
     }
 
-    public void validateJoin(String[] params) {
-
+    public void validateJoin(String[] params, int gameListSize) {
+        if(params.length != 3) {
+            throw new SyntaxException("Usage: join [id] [WHITE|BLACK]");
+        }
+        try{
+            Integer.parseInt(params[1]);
+        } catch (NumberFormatException e) {
+            throw new SyntaxException("Invalid game ID");
+        }
+        if(Integer.parseInt(params[1]) > gameListSize || Integer.parseInt(params[1]) <= 0) {
+            throw new SyntaxException("Invalid game ID");
+        }
+        switch(params[2].toUpperCase()) {
+            case "WHITE", "W", "BLACK", "B" -> {}
+            default -> throw new SyntaxException("Usage: join [id] [WHITE|BLACK]");
+        };
     }
 
     public void validateList(String[] params) {
-
+        if(params.length != 1) {
+            throw new SyntaxException("Usage: list");
+        }
     }
 
     public void validateCreate(String[] params) {
-
+        if(params.length != 2) {
+            throw new SyntaxException("Usage: create [name]");
+        }
+        try{
+            Integer.parseInt(params[1]);
+            throw new SyntaxException("Game names cannot be numerals");
+        } catch (NumberFormatException e) {
+            // string was not a number
+        }
     }
 
     public void validateLogout(String[] params) {
-
+        if(params.length != 1) {
+            throw new SyntaxException("Usage: logout");
+        }
     }
 
     @Override
