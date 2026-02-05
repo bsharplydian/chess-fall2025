@@ -18,7 +18,7 @@ public class PostLoginExecutor implements Executor {
     ArrayList<Integer> serverGameIDs = new ArrayList<>();
     ServerFacade facade;
     BoardPrinter printer = new BoardPrinter();
-
+    PostLoginValidator validator = new PostLoginValidator();
     public PostLoginExecutor(ServerFacade facade) {
         this.facade = facade;
     }
@@ -111,18 +111,8 @@ public class PostLoginExecutor implements Executor {
         return "Joined " + params[1] + " as " + params[2] + "\n" + printer.printBoard(board, color);
     }
 
-    private String handleObserve(String[] params) throws HttpResponseException {
-        if(params.length != 2) {
-            throw new HttpResponseException("Usage: observe [id]");
-        }
-        try{
-            Integer.parseInt(params[1]);
-        } catch (NumberFormatException e) {
-            throw new HttpResponseException("Invalid game ID");
-        }
-        if(Integer.parseInt(params[1]) > serverGameIDs.size() || Integer.parseInt(params[1]) <= 0) {
-            throw new HttpResponseException("Invalid game ID");
-        }
+    private String handleObserve(String[] params) throws SyntaxException {
+        validator.validateObserve(params, serverGameIDs.size());
 
         ChessBoard board = new ChessBoard();
         board.resetBoard();

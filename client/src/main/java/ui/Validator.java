@@ -39,6 +39,6 @@ public abstract class Validator {
             default -> throw new SyntaxException("Unexpected value: " + command); // add an actual syntax exception
         };
     }
-    abstract Command validate(String[] params) throws Exception;
+    abstract Command validate(String[] params) throws SyntaxException;
     abstract Set<Command> getLegalCommands();
 }
