@@ -1,26 +1,6 @@
 package ui;
 
-import chess.ChessGame;
-import serverfacade.HttpResponseException;
-
-import java.util.Set;
-
-import static chess.ChessGame.TeamColor.BLACK;
-import static chess.ChessGame.TeamColor.WHITE;
-import static ui.Validator.Command.*;
-
 public class PostLoginValidator extends Validator {
-    @Override
-    Command validate(String[] params) throws SyntaxException {
-        Command command = getCommand(params[0]);
-        switch(command) {
-            case LOGOUT -> validateLogout(params);
-            case CREATE -> validateCreate(params);
-            case LIST -> validateList(params);
-        }
-        return command;
-    }
-
     public void validateObserve(String[] params, int gameListSize) {
         if(params.length != 2) {
             throw new SyntaxException("Usage: observe [id]");
@@ -75,10 +55,5 @@ public class PostLoginValidator extends Validator {
         if(params.length != 1) {
             throw new SyntaxException("Usage: logout");
         }
-    }
-
-    @Override
-    Set<Command> getLegalCommands() {
-        return Set.of(HELP, LOGOUT, CREATE, LIST, JOIN, OBSERVE);
     }
 }

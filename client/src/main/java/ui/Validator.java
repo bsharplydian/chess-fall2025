@@ -1,7 +1,5 @@
 package ui;
 
-import java.util.Set;
-
 public abstract class Validator {
     public enum Command {
         REGISTER,
@@ -19,7 +17,7 @@ public abstract class Validator {
         HELP,
         QUIT
     }
-    Command getCommand(String command) throws SyntaxException{
+    public Command parseCommand(String command) throws SyntaxException{
         return switch(command) {
             case "register" -> Command.REGISTER;
             case "login" -> Command.LOGIN;
@@ -39,6 +37,4 @@ public abstract class Validator {
             default -> throw new SyntaxException("Unexpected value: " + command); // add an actual syntax exception
         };
     }
-    abstract Command validate(String[] params) throws SyntaxException;
-    abstract Set<Command> getLegalCommands();
 }

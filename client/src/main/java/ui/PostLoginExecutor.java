@@ -26,20 +26,20 @@ public class PostLoginExecutor implements Executor {
     @Override
     public String eval(String input) throws HttpResponseException {
         String[] params = input.split(" ");
-        return switch(params[0]) {
-            case "help" -> """
+        return switch(validator.parseCommand(params[0])) {
+            case HELP -> """
                     help -> display this menu
                     logout -> logout
                     create [name] -> make a new game
                     list -> list the games and ids
                     join [id] [WHITE|BLACK] -> join a game
                     observe -> observe a game""";
-            case "logout" -> handleLogout(params);
-            case "create" -> handleCreate(params);
-            case "list" -> handleList(params);
-            case "join" -> handleJoin(params);
-            case "observe" -> handleObserve(params);
-            default -> throw new HttpResponseException("Invalid Command: " + params[0]);
+            case LOGOUT -> handleLogout(params);
+            case CREATE -> handleCreate(params);
+            case LIST -> handleList(params);
+            case JOIN -> handleJoin(params);
+            case OBSERVE -> handleObserve(params);
+            default -> throw new SyntaxException("Invalid Command: " + params[0]);
         };
     }
 
