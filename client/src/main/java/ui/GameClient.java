@@ -8,14 +8,14 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 
 public class GameClient {
     Executor currentExecutor;
-    PreLoginExecutor preLoginClient;
-    PostLoginExecutor postLoginClient;
-    InGameExecutor inGameClient;
+    PreLoginExecutor preLoginExecutor;
+    PostLoginExecutor postLoginExecutor;
+    InGameExecutor inGameExecutor;
     public GameClient(ServerFacade facade) {
-        this.preLoginClient = new PreLoginExecutor(facade);
-        this.postLoginClient = new PostLoginExecutor(facade);
-        this.inGameClient = new InGameExecutor(facade);
-        this.currentExecutor = this.preLoginClient;
+        this.preLoginExecutor = new PreLoginExecutor(facade);
+        this.postLoginExecutor = new PostLoginExecutor(facade);
+        this.inGameExecutor = new InGameExecutor(facade);
+        this.currentExecutor = this.preLoginExecutor;
     }
 
     public String eval(String input) {
@@ -23,8 +23,8 @@ public class GameClient {
         String ret;
         try {
             ret = currentExecutor.eval(input);
-            setCurrentClient(params);
-        } catch (HttpResponseException e) {
+            setCurrentExecutor(params);
+        } catch (SyntaxException | HttpResponseException e) {
             ret = e.getMessage();
         } catch(Exception e) {
             ret = e.getMessage();
@@ -43,11 +43,11 @@ public class GameClient {
         }
         return null;
     }
-    private void setCurrentClient(String[] params) throws HttpResponseException {
+    private void setCurrentExecutor(String[] params) throws SyntaxException, HttpResponseException {
         currentExecutor = switch(params[0]) {
-            case "register", "login" -> currentExecutor instanceof PreLoginExecutor ? postLoginClient                          : currentExecutor;
-            case "logout" -> currentExecutor instanceof PostLoginExecutor ? preLoginClient                           : currentExecutor;
-            case "join", "observe" -> currentExecutor instanceof PostLoginExecutor ? inGameClient.start(params[1], params[2]) : currentExecutor;
+            case "register", "login" -> currentExecutor instanceof PreLoginExecutor ? postLoginExecutor : currentExecutor;
+            case "logout" -> currentExecutor instanceof PostLoginExecutor ? preLoginExecutor : currentExecutor;
+            case "join", "observe" -> currentExecutor instanceof PostLoginExecutor ? inGameExecutor.start(params[1], params[2]) : currentExecutor;
             default -> currentExecutor;
         };
     }

@@ -35,6 +35,7 @@ public class InGameExecutor implements Executor {
 
 
     private String drawHandler() {
+
         return "draw not implemented";
     }
     private String leaveHandler() {
@@ -50,18 +51,18 @@ public class InGameExecutor implements Executor {
         return "hl not implemented";
     }
 
-    public InGameExecutor start(String gameID, String color) throws HttpResponseException {
+    public InGameExecutor start(String gameID, String color) throws SyntaxException, HttpResponseException {
         int id;
         try{
             id = Integer.parseInt(gameID);
         } catch (NumberFormatException e) {
-            throw new HttpResponseException(e.getMessage());
+            throw new SyntaxException("invalid game id");
         }
         ChessGame.TeamColor teamColor = switch(color.toUpperCase()) {
             case "WHITE", "W" -> ChessGame.TeamColor.WHITE;
             case "BLACK", "B" -> ChessGame.TeamColor.BLACK;
             case "" -> null;
-            default -> throw new HttpResponseException("Usage: join [id] [WHITE|BLACK]");
+            default -> throw new SyntaxException("Usage: join [id] [WHITE|BLACK]");
         };
         ws.startServerConnection();
         ws.connectToGame(facade.getAuth(), id);

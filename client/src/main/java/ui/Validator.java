@@ -34,7 +34,7 @@ public abstract class Validator {
             case "help" -> Command.HELP;
             case "quit" -> Command.QUIT;
 
-            default -> throw new SyntaxException("Unexpected value: " + command); // add an actual syntax exception
+            default -> throw new SyntaxException("Unexpected value: " + command);
         };
     }
 }
