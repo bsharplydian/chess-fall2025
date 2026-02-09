@@ -48,7 +48,6 @@ public class WebSocketFacade extends Endpoint {
                             messageHandler.handleMessage(errorMessage);
                         }
                     };
-                    System.out.println(message.toString());
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {

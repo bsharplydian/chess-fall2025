@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
 
+import static ui.EscapeSequences.RESET_TEXT_COLOR;
+import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
+
 public class PostLoginExecutor implements Executor {
     ArrayList<Integer> serverGameIDs = new ArrayList<>();
     ServerFacade facade;
@@ -41,6 +44,11 @@ public class PostLoginExecutor implements Executor {
             case OBSERVE -> handleObserve(params);
             default -> throw new SyntaxException("Invalid Command: " + params[0]);
         };
+    }
+
+    @Override
+    public String getPrompt() {
+        return "\n" + RESET_TEXT_COLOR + "logged in >> " + SET_TEXT_COLOR_GREEN;
     }
 
     private String handleLogout(String[] params) throws HttpResponseException {

@@ -9,6 +9,9 @@ import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
+import static ui.EscapeSequences.RESET_TEXT_COLOR;
+import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
+
 public class InGameExecutor implements Executor, MessageHandler {
     WebSocketFacade ws;
     ServerFacade facade;
@@ -38,7 +41,10 @@ public class InGameExecutor implements Executor, MessageHandler {
         };
     }
 
-
+    @Override
+    public String getPrompt() {
+        return "\n" + RESET_TEXT_COLOR + "in game >> " + SET_TEXT_COLOR_GREEN;
+    }
 
     private String drawHandler() {
 
@@ -77,16 +83,17 @@ public class InGameExecutor implements Executor, MessageHandler {
 
     @Override
     public void handleMessage(NotificationMessage notificationMessage) {
-       System.out.print("message received:" + notificationMessage);
+       System.out.print(notificationMessage.getMessage());
+
     }
 
     @Override
     public void handleMessage(LoadGameMessage loadGameMessage) {
-        System.out.print("message received:" + loadGameMessage);
+        System.out.print(loadGameMessage.getGame());
     }
 
     @Override
     public void handleMessage(ErrorMessage errorMessage) {
-        System.out.print("error received:" + errorMessage);
+        System.out.print(errorMessage.getMessage());
     }
 }

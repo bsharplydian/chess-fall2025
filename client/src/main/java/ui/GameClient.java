@@ -38,12 +38,7 @@ public class GameClient {
 
     }
     public String getPrompt() {
-        if(currentExecutor instanceof PreLoginExecutor) {
-            return "\n" + RESET_TEXT_COLOR + ">> " + SET_TEXT_COLOR_GREEN;
-        } else if (currentExecutor instanceof PostLoginExecutor) {
-            return "\n" + RESET_TEXT_COLOR + "logged in >> " + SET_TEXT_COLOR_GREEN;
-        }
-        return null;
+        return currentExecutor.getPrompt();
     }
     private void setCurrentExecutor(String[] params) throws SyntaxException, HttpResponseException {
         currentExecutor = switch(params[0]) {

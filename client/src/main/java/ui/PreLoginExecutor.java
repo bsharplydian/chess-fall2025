@@ -7,6 +7,9 @@ import model.results.RegisterResult;
 import serverfacade.HttpResponseException;
 import serverfacade.ServerFacade;
 
+import static ui.EscapeSequences.RESET_TEXT_COLOR;
+import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
+
 public class PreLoginExecutor implements Executor {
     ServerFacade facade;
     PreLoginValidator validator = new PreLoginValidator();
@@ -28,6 +31,12 @@ public class PreLoginExecutor implements Executor {
             default -> throw new SyntaxException("Invalid Command: " + params[0]);
         };
     }
+
+    @Override
+    public String getPrompt() {
+        return "\n" + RESET_TEXT_COLOR + ">> " + SET_TEXT_COLOR_GREEN;
+    }
+
     private String handleRegister(String[] params) throws HttpResponseException {
         validator.validateRegister(params);
 
