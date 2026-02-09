@@ -2,15 +2,21 @@ package ui;
 
 import chess.ChessGame;
 import serverfacade.HttpResponseException;
+import serverfacade.MessageHandler;
 import serverfacade.ServerFacade;
 import serverfacade.WebSocketFacade;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 
-public class InGameExecutor implements Executor {
+public class InGameExecutor implements Executor, MessageHandler {
     WebSocketFacade ws;
     ServerFacade facade;
+    ChessGame game = new ChessGame();
 
-    public InGameExecutor(ServerFacade facade) {
+    public InGameExecutor(ServerFacade facade, String url) {
         this.facade = facade;
+        this.ws = new WebSocketFacade(url, this);
     }
     @Override
     public String eval(String input) throws HttpResponseException {
@@ -67,5 +73,20 @@ public class InGameExecutor implements Executor {
         ws.startServerConnection();
         ws.connectToGame(facade.getAuth(), id);
         return this;
+    }
+
+    @Override
+    public void handleMessage(NotificationMessage notificationMessage) {
+       System.out.print("message received:" + notificationMessage);
+    }
+
+    @Override
+    public void handleMessage(LoadGameMessage loadGameMessage) {
+        System.out.print("message received:" + loadGameMessage);
+    }
+
+    @Override
+    public void handleMessage(ErrorMessage errorMessage) {
+        System.out.print("error received:" + errorMessage);
     }
 }

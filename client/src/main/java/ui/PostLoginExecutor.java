@@ -79,7 +79,7 @@ public class PostLoginExecutor implements Executor {
         validator.validateJoin(params, serverGameIDs.size());
 
         ChessGame.TeamColor color = switch(params[2].toUpperCase()) {
-            case "WHITE, W" -> WHITE;
+            case "WHITE", "W" -> WHITE;
             case "BLACK", "B" -> BLACK;
             default -> null; // not possible after validation
         };

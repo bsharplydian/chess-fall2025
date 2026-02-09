@@ -7,7 +7,7 @@ import static ui.EscapeSequences.*;
 
 public class Repl {
     ServerFacade facade = new ServerFacade(8080);
-    GameClient gameClient = new GameClient(facade);
+    GameClient gameClient = new GameClient(facade, 8080);
     public void run() {
         System.out.println("Welcome to Chess; sign in to get started");
 

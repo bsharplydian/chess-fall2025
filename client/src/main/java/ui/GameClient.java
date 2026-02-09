@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import serverfacade.HttpResponseException;
 import serverfacade.ServerFacade;
 
@@ -11,10 +12,11 @@ public class GameClient {
     PreLoginExecutor preLoginExecutor;
     PostLoginExecutor postLoginExecutor;
     InGameExecutor inGameExecutor;
-    public GameClient(ServerFacade facade) {
+
+    public GameClient(ServerFacade facade, int port) {
         this.preLoginExecutor = new PreLoginExecutor(facade);
         this.postLoginExecutor = new PostLoginExecutor(facade);
-        this.inGameExecutor = new InGameExecutor(facade);
+        this.inGameExecutor = new InGameExecutor(facade, String.format("http://localhost:%d", port));
         this.currentExecutor = this.preLoginExecutor;
     }
 
