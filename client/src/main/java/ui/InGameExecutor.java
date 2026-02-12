@@ -16,6 +16,8 @@ public class InGameExecutor implements Executor, MessageHandler {
     WebSocketFacade ws;
     ServerFacade facade;
     ChessGame game = new ChessGame();
+    ChessGame.TeamColor color = null;
+    BoardPrinter printer = new BoardPrinter();
 
     public InGameExecutor(ServerFacade facade, String url) {
         this.facade = facade;
@@ -51,6 +53,7 @@ public class InGameExecutor implements Executor, MessageHandler {
         return "draw not implemented";
     }
     private String leaveHandler() {
+        ws.leave();
         return "leave not implemented";
     }
     private String moveHandler(String[] params) {
@@ -60,7 +63,7 @@ public class InGameExecutor implements Executor, MessageHandler {
         return "resign not implemented";
     }
     private String hlHandler(String[] params) {
-        return "hl not implemented";
+        return "highlight not implemented";
     }
 
     public InGameExecutor start(String gameID, String color) throws SyntaxException, HttpResponseException {
@@ -70,12 +73,13 @@ public class InGameExecutor implements Executor, MessageHandler {
         } catch (NumberFormatException e) {
             throw new SyntaxException("invalid game id");
         }
-        ChessGame.TeamColor teamColor = switch(color.toUpperCase()) {
+        this.color = switch(color.toUpperCase()) {
             case "WHITE", "W" -> ChessGame.TeamColor.WHITE;
             case "BLACK", "B" -> ChessGame.TeamColor.BLACK;
             case "" -> null;
             default -> throw new SyntaxException("Usage: join [id] [WHITE|BLACK]");
         };
+
         ws.startServerConnection();
         ws.connectToGame(facade.getAuth(), id);
         return this;
@@ -83,17 +87,20 @@ public class InGameExecutor implements Executor, MessageHandler {
 
     @Override
     public void handleMessage(NotificationMessage notificationMessage) {
-       System.out.print(notificationMessage.getMessage());
+       System.out.print("\n"+notificationMessage.getMessage());
+       System.out.print(getPrompt());
 
     }
 
     @Override
     public void handleMessage(LoadGameMessage loadGameMessage) {
-        System.out.print(loadGameMessage.getGame());
+        System.out.print("\n"+printer.printBoard(loadGameMessage.getGame().getBoard(), color));
+        System.out.print(getPrompt());
     }
 
     @Override
     public void handleMessage(ErrorMessage errorMessage) {
-        System.out.print(errorMessage.getMessage());
+        System.out.print("\n"+errorMessage.getMessage());
+        System.out.print(getPrompt());
     }
 }

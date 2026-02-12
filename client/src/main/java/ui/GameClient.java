@@ -12,12 +12,14 @@ public class GameClient {
     PreLoginExecutor preLoginExecutor;
     PostLoginExecutor postLoginExecutor;
     InGameExecutor inGameExecutor;
+    Repl repl;
 
-    public GameClient(ServerFacade facade, int port) {
+    public GameClient(ServerFacade facade, int port, Repl repl) {
         this.preLoginExecutor = new PreLoginExecutor(facade);
         this.postLoginExecutor = new PostLoginExecutor(facade);
         this.inGameExecutor = new InGameExecutor(facade, String.format("http://localhost:%d", port));
         this.currentExecutor = this.preLoginExecutor;
+        this.repl = repl;
     }
 
     public String eval(String input) {
