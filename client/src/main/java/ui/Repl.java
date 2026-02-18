@@ -12,9 +12,9 @@ public class Repl {
         System.out.println("Welcome to Chess; sign in to get started");
 
         Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while(!result.equals("quit")) {
-            System.out.print(gameClient.getPrompt());
+        var result = true;
+        while(result) {
+            print(gameClient.getPrompt());
             result = gameClient.eval(scanner.nextLine());
         }
 

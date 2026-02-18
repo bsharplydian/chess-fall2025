@@ -17,12 +17,12 @@ public class GameClient {
     public GameClient(ServerFacade facade, int port, Repl repl) {
         this.preLoginExecutor = new PreLoginExecutor(facade);
         this.postLoginExecutor = new PostLoginExecutor(facade);
-        this.inGameExecutor = new InGameExecutor(facade, String.format("http://localhost:%d", port));
+        this.inGameExecutor = new InGameExecutor(facade, String.format("http://localhost:%d", port), repl);
         this.currentExecutor = this.preLoginExecutor;
         this.repl = repl;
     }
 
-    public String eval(String input) {
+    public boolean eval(String input) {
         String[] params = input.split(" ");
         String ret;
         try {
@@ -36,7 +36,13 @@ public class GameClient {
         if(ret == null) {
             ret = "An unknown error occurred";
         }
-        return ret;
+        if(ret.equals("quit")) {
+            repl.print("quitting application...");
+            return false;
+        } else {
+            repl.print(ret);
+            return true;
+        }
 
     }
     public String getPrompt() {
@@ -47,6 +53,7 @@ public class GameClient {
             case "register", "login" -> currentExecutor instanceof PreLoginExecutor ? postLoginExecutor : currentExecutor;
             case "logout" -> currentExecutor instanceof PostLoginExecutor ? preLoginExecutor : currentExecutor;
             case "join", "observe" -> currentExecutor instanceof PostLoginExecutor ? inGameExecutor.start(params[1], params[2]) : currentExecutor;
+            case "leave" -> currentExecutor instanceof InGameExecutor ? postLoginExecutor : currentExecutor;
             default -> currentExecutor;
         };
     }

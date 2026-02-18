@@ -1,6 +1,8 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import serverfacade.HttpResponseException;
 import serverfacade.MessageHandler;
 import serverfacade.ServerFacade;
@@ -15,13 +17,16 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 public class InGameExecutor implements Executor, MessageHandler {
     WebSocketFacade ws;
     ServerFacade facade;
+    int gameID = -1;
     ChessGame game = new ChessGame();
     ChessGame.TeamColor color = null;
     BoardPrinter printer = new BoardPrinter();
+    Repl repl;
 
-    public InGameExecutor(ServerFacade facade, String url) {
+    public InGameExecutor(ServerFacade facade, String url, Repl repl) {
         this.facade = facade;
         this.ws = new WebSocketFacade(url, this);
+        this.repl = repl;
     }
     @Override
     public String eval(String input) throws HttpResponseException {
@@ -49,18 +54,47 @@ public class InGameExecutor implements Executor, MessageHandler {
     }
 
     private String drawHandler() {
-
-        return "draw not implemented";
+        return (printer.printBoard(game.getBoard(), this.color));
     }
     private String leaveHandler() {
         ws.leave();
-        return "leave not implemented";
+        return "leaving game...";
     }
-    private String moveHandler(String[] params) {
-        return "move not implemented";
+    private String moveHandler(String[] params) throws SyntaxException, HttpResponseException {
+        // move e2 e4
+        ChessPosition startPos = readPosition(params[1]);
+        ChessPosition endPos = readPosition(params[2]);
+        ws.makeMove(facade.getAuth(), gameID, new ChessMove(startPos, endPos, null));
+        return "making move...";
+    }
+    private ChessPosition readPosition(String position) throws SyntaxException{
+        int col = switch(position.substring(0, 1)) {
+            case "a" -> 1;
+            case "b" -> 2;
+            case "c" -> 3;
+            case "d" -> 4;
+            case "e" -> 5;
+            case "f" -> 6;
+            case "g" -> 7;
+            case "h" -> 8;
+            default -> {
+                throw new SyntaxException("column not formatted properly: " + position);
+            }
+        };
+        int row;
+        try {
+            row = Integer.parseInt(position.substring(1, 2));
+        } catch (NumberFormatException e) {
+            throw new SyntaxException("row not formatted properly: " + position);
+        }
+        if(row < 1 || row > 8) {
+            throw new SyntaxException("row not formatted properly: " + position);
+        }
+        return new ChessPosition(row, col);
     }
     private String resignHandler() {
-        return "resign not implemented";
+        ws.resign();
+        return "resigning...";
     }
     private String hlHandler(String[] params) {
         return "highlight not implemented";
@@ -73,6 +107,7 @@ public class InGameExecutor implements Executor, MessageHandler {
         } catch (NumberFormatException e) {
             throw new SyntaxException("invalid game id");
         }
+        this.gameID = id;
         this.color = switch(color.toUpperCase()) {
             case "WHITE", "W" -> ChessGame.TeamColor.WHITE;
             case "BLACK", "B" -> ChessGame.TeamColor.BLACK;
@@ -87,20 +122,22 @@ public class InGameExecutor implements Executor, MessageHandler {
 
     @Override
     public void handleMessage(NotificationMessage notificationMessage) {
-       System.out.print("\n"+notificationMessage.getMessage());
-       System.out.print(getPrompt());
+        repl.print("\n"+notificationMessage.getMessage());
+//        System.out.print("\n"+notificationMessage.getMessage());
+        repl.print(getPrompt());
 
     }
 
     @Override
     public void handleMessage(LoadGameMessage loadGameMessage) {
-        System.out.print("\n"+printer.printBoard(loadGameMessage.getGame().getBoard(), color));
-        System.out.print(getPrompt());
+        this.game = loadGameMessage.getGame();
+        repl.print("\n"+printer.printBoard(game.getBoard(), color));
+        repl.print(getPrompt());
     }
 
     @Override
     public void handleMessage(ErrorMessage errorMessage) {
-        System.out.print("\n"+errorMessage.getMessage());
-        System.out.print(getPrompt());
+        repl.print("\n"+errorMessage.getMessage());
+        repl.print(getPrompt());
     }
 }
