@@ -56,8 +56,8 @@ public class InGameExecutor implements Executor, MessageHandler {
     private String drawHandler() {
         return (printer.printBoard(game.getBoard(), this.color));
     }
-    private String leaveHandler() {
-        ws.leave();
+    private String leaveHandler() throws HttpResponseException {
+        ws.leave(facade.getAuth(), gameID);
         return "leaving game...";
     }
     private String moveHandler(String[] params) throws SyntaxException, HttpResponseException {
@@ -88,7 +88,7 @@ public class InGameExecutor implements Executor, MessageHandler {
             throw new SyntaxException("row not formatted properly: " + position);
         }
         if(row < 1 || row > 8) {
-            throw new SyntaxException("row not formatted properly: " + position);
+            throw new SyntaxException("row should be between 1 and 8: " + position);
         }
         return new ChessPosition(row, col);
     }
