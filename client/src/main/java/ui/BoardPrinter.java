@@ -1,9 +1,8 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
+
+import java.util.Collection;
 
 import static chess.ChessGame.TeamColor.*;
 import static ui.EscapeSequences.*;
@@ -19,7 +18,7 @@ public class BoardPrinter {
     final static int[] BACKWARD_COORDS = {8, 7, 6, 5, 4, 3, 2, 1};
 
 
-    public String printBoard(ChessBoard board, ChessGame.TeamColor color) {
+    public String printBoard(ChessBoard board, ChessGame.TeamColor color, Collection<ChessPosition> highlights) {
         int[] rows = switch(color) {
             case WHITE -> BACKWARD_COORDS; // white prints the rows starting at 8 and going down to 1
             case BLACK -> FORWARD_COORDS; // black prints them starting with 1 at the top and going down to 8
@@ -33,7 +32,8 @@ public class BoardPrinter {
         for(int row : rows) {
             boardString.append(printRowMarker(row));
             for(int col : cols) {
-                boardString.append(printCell(board.getPiece(new ChessPosition(row, col)), row, col));
+                boolean highlight = highlights != null && highlights.contains(new ChessPosition(row, col));
+                boardString.append(printCell(board.getPiece(new ChessPosition(row, col)), row, col, highlight));
             }
             boardString.append(printRowMarker(row));
             boardString.append(RESET_BG_COLOR + "\n");
@@ -52,12 +52,14 @@ public class BoardPrinter {
         };
         return coordForeground + coordBackground + columns + RESET_BG_COLOR + "\n";
     }
-    private String printCell(ChessPiece piece, int row, int col) {
+    private String printCell(ChessPiece piece, int row, int col, boolean highlight) {
         StringBuilder cell = new StringBuilder();
+        String newLightSquareColor = highlight ? SET_BG_COLOR_YELLOW : lightSquareColor;
+        String newDarkSquareColor = highlight ? SET_BG_COLOR_GREEN : darkSquareColor;
         if((row + col) % 2 == 1) {
-            cell.append(lightSquareColor);
+            cell.append(newLightSquareColor);
         } else {
-            cell.append(darkSquareColor);
+            cell.append(newDarkSquareColor);
         }
         if(piece == null) {
             cell.append("   " + RESET_TEXT_COLOR);

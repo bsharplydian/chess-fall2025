@@ -11,6 +11,9 @@ import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import static ui.EscapeSequences.RESET_TEXT_COLOR;
 import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 
@@ -54,7 +57,7 @@ public class InGameExecutor implements Executor, MessageHandler {
     }
 
     private String drawHandler() {
-        return (printer.printBoard(game.getBoard(), this.color));
+        return (printer.printBoard(game.getBoard(), this.color, null));
     }
     private String leaveHandler() throws HttpResponseException {
         ws.leave(facade.getAuth(), gameID);
@@ -92,12 +95,19 @@ public class InGameExecutor implements Executor, MessageHandler {
         }
         return new ChessPosition(row, col);
     }
-    private String resignHandler() {
-        ws.resign();
+    private String resignHandler() throws HttpResponseException {
+        ws.resign(facade.getAuth(), gameID);
         return "resigning...";
     }
     private String hlHandler(String[] params) {
-        return "highlight not implemented";
+        ChessPosition thisPosition = readPosition(params[1]);
+        Collection<ChessMove> moves = game.validMoves(thisPosition);
+        Collection<ChessPosition> highlights=new ArrayList<>();
+        for(ChessMove move : moves) {
+            highlights.add(move.getEndPosition());
+        }
+        highlights.add(thisPosition);
+        return printer.printBoard(game.getBoard(), this.color, highlights);
     }
 
     public InGameExecutor start(String gameID, String color) throws SyntaxException, HttpResponseException {
@@ -131,7 +141,7 @@ public class InGameExecutor implements Executor, MessageHandler {
     @Override
     public void handleMessage(LoadGameMessage loadGameMessage) {
         this.game = loadGameMessage.getGame();
-        repl.print("\n"+printer.printBoard(game.getBoard(), color));
+        repl.print("\n"+printer.printBoard(game.getBoard(), color, null));
         repl.print(getPrompt());
     }
 

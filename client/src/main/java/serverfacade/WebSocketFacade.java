@@ -3,10 +3,7 @@ package serverfacade;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
-import websocket.commands.ConnectCommand;
-import websocket.commands.LeaveCommand;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -82,8 +79,13 @@ public class WebSocketFacade extends Endpoint {
             throw new HttpResponseException(e.getMessage());
         }
     }
-    public void resign() {
-
+    public void resign(String authToken, int gameID) throws HttpResponseException {
+        try {
+            UserGameCommand command = new ResignCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException e) {
+            throw new HttpResponseException(e.getMessage());
+        }
     }
 
     public void closeServerConnection() throws HttpResponseException {
