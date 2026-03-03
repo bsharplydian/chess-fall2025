@@ -80,9 +80,9 @@ public class InGameExecutor implements Executor, MessageHandler {
             case "f" -> 6;
             case "g" -> 7;
             case "h" -> 8;
-            default -> {
+            default ->
                 throw new SyntaxException("column not formatted properly: " + position);
-            }
+
         };
         int row;
         try {

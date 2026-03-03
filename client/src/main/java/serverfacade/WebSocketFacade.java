@@ -47,7 +47,7 @@ public class WebSocketFacade extends Endpoint {
                             ErrorMessage errorMessage = new Gson().fromJson(s, ErrorMessage.class);
                             messageHandler.handleMessage(errorMessage);
                         }
-                    };
+                    }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {

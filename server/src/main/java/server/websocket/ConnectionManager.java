@@ -99,14 +99,17 @@ public class ConnectionManager {
                     )
             );
             ChessGame.TeamColor opponentColor = gameData.game().invertColor(getPlayerColor(command));
-
+            String oppUsername = switch(opponentColor) {
+                case WHITE -> gameData.whiteUsername();
+                case BLACK -> gameData.blackUsername();
+            };
             if(gameData.game().isInCheckmate(opponentColor)) {
-                games.get(id).allMessage(new NotificationMessage(ServerMessageType.NOTIFICATION, "OPPONENT USERNAME is in checkmate"));
+                games.get(id).allMessage(new NotificationMessage(ServerMessageType.NOTIFICATION, oppUsername + " is in checkmate"));
                 gameData.game().setGameOver(true);
             } else if(gameData.game().isInCheck(opponentColor)) {
-                games.get(id).allMessage(new NotificationMessage(ServerMessageType.NOTIFICATION, "OPPONENT USERNAME is in check"));
+                games.get(id).allMessage(new NotificationMessage(ServerMessageType.NOTIFICATION, oppUsername + " is in check"));
             } else if(gameData.game().isInStalemate(opponentColor)) {
-                games.get(id).allMessage(new NotificationMessage(ServerMessageType.NOTIFICATION, "OPPONENT USERNAME is in stalemate"));
+                games.get(id).allMessage(new NotificationMessage(ServerMessageType.NOTIFICATION, oppUsername + " is in stalemate"));
             }
 
 
