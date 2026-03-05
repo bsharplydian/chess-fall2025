@@ -4,10 +4,6 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 
 public class InGameValidator extends Validator {
-    public void validateMove(String[] params) {
-
-    }
-
     public ChessPosition readPosition(String position) throws SyntaxException{
         int col = switch(position.substring(0, 1)) {
             case "a" -> 1;

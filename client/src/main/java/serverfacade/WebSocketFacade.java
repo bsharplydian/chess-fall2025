@@ -88,14 +88,6 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void closeServerConnection() throws HttpResponseException {
-        try {
-            this.session.close();
-        } catch (IOException e) {
-            throw new HttpResponseException(e.getMessage());
-        }
-    }
-
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
