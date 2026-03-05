@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import serverfacade.HttpResponseException;
 import serverfacade.MessageHandler;
@@ -25,6 +26,7 @@ public class InGameExecutor implements Executor, MessageHandler {
     ChessGame.TeamColor color = null;
     BoardPrinter printer = new BoardPrinter();
     Repl repl;
+    InGameValidator validator = new InGameValidator();
 
     public InGameExecutor(ServerFacade facade, String url, Repl repl) {
         this.facade = facade;
@@ -34,19 +36,19 @@ public class InGameExecutor implements Executor, MessageHandler {
     @Override
     public String eval(String input) throws HttpResponseException {
         String[] params = input.split(" ");
-        return switch(params[0]) {
-            case "help" -> """
+        return switch(validator.parseCommand(params[0])) {
+            case HELP      -> """
                     help                         -> display this menu
                     draw                         -> draw the board
                     leave                        -> leave the game
                     move <positionA> <positionB> -> move from position A to position B
                     resign                       -> resign and admit defeat
                     hl <position>                -> highlight legal moves""";
-            case "draw"   -> drawHandler();
-            case "leave"  -> leaveHandler();
-            case "move"   -> moveHandler(params);
-            case "resign" -> resignHandler();
-            case "hl"     -> hlHandler(params);
+            case DRAW      -> drawHandler();
+            case LEAVE     -> leaveHandler();
+            case MOVE      -> moveHandler(params);
+            case RESIGN    -> resignHandler();
+            case HIGHLIGHT -> hlHandler(params);
             default -> throw new HttpResponseException("Invalid Command: " + params[0]);
         };
     }
@@ -65,42 +67,22 @@ public class InGameExecutor implements Executor, MessageHandler {
     }
     private String moveHandler(String[] params) throws SyntaxException, HttpResponseException {
         // move e2 e4
-        ChessPosition startPos = readPosition(params[1]);
-        ChessPosition endPos = readPosition(params[2]);
-        ws.makeMove(facade.getAuth(), gameID, new ChessMove(startPos, endPos, null));
+        ChessPosition startPos = validator.readPosition(params[1]);
+        ChessPosition endPos = validator.readPosition(params[2]);
+        ChessPiece.PieceType promotionPiece = params.length == 4 ? validator.readPiece(params[3]) : null;
+        ws.makeMove(facade.getAuth(), gameID, new ChessMove(startPos, endPos, promotionPiece));
         return "making move...";
     }
-    private ChessPosition readPosition(String position) throws SyntaxException{
-        int col = switch(position.substring(0, 1)) {
-            case "a" -> 1;
-            case "b" -> 2;
-            case "c" -> 3;
-            case "d" -> 4;
-            case "e" -> 5;
-            case "f" -> 6;
-            case "g" -> 7;
-            case "h" -> 8;
-            default ->
-                throw new SyntaxException("column not formatted properly: " + position);
 
-        };
-        int row;
-        try {
-            row = Integer.parseInt(position.substring(1, 2));
-        } catch (NumberFormatException e) {
-            throw new SyntaxException("row not formatted properly: " + position);
-        }
-        if(row < 1 || row > 8) {
-            throw new SyntaxException("row should be between 1 and 8: " + position);
-        }
-        return new ChessPosition(row, col);
-    }
     private String resignHandler() throws HttpResponseException {
         ws.resign(facade.getAuth(), gameID);
         return "resigning...";
     }
     private String hlHandler(String[] params) {
-        ChessPosition thisPosition = readPosition(params[1]);
+        ChessPosition thisPosition = validator.readPosition(params[1]);
+        if(game.getBoard().getPiece(thisPosition) == null) {
+            return printer.printBoard(game.getBoard(), this.color, null);
+        }
         Collection<ChessMove> moves = game.validMoves(thisPosition);
         Collection<ChessPosition> highlights=new ArrayList<>();
         for(ChessMove move : moves) {
