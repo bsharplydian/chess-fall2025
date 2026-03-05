@@ -75,6 +75,10 @@ public class InGameExecutor implements Executor, MessageHandler {
     }
 
     private String resignHandler() throws HttpResponseException {
+        repl.print("Are you sure? (y/n) ");
+        if(!repl.getInput().equals("y")){
+            return "resign cancelled";
+        }
         ws.resign(facade.getAuth(), gameID);
         return "resigning...";
     }
