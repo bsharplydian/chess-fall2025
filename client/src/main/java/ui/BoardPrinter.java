@@ -19,6 +19,9 @@ public class BoardPrinter {
 
 
     public String printBoard(ChessBoard board, ChessGame.TeamColor color, Collection<ChessPosition> highlights) {
+        if(color == null) {
+            color = WHITE;
+        }
         int[] rows = switch(color) {
             case WHITE -> BACKWARD_COORDS; // white prints the rows starting at 8 and going down to 1
             case BLACK -> FORWARD_COORDS; // black prints them starting with 1 at the top and going down to 8

@@ -1,11 +1,7 @@
 package ui;
 
-import chess.ChessGame;
 import serverfacade.HttpResponseException;
 import serverfacade.ServerFacade;
-
-import static ui.EscapeSequences.RESET_TEXT_COLOR;
-import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 
 public class GameClient {
     Executor currentExecutor;
@@ -52,7 +48,8 @@ public class GameClient {
         currentExecutor = switch(params[0]) {
             case "register", "login" -> currentExecutor instanceof PreLoginExecutor ? postLoginExecutor : currentExecutor;
             case "logout" -> currentExecutor instanceof PostLoginExecutor ? preLoginExecutor : currentExecutor;
-            case "join", "observe" -> currentExecutor instanceof PostLoginExecutor ? inGameExecutor.start(params[1], params[2]) : currentExecutor;
+            case "join" -> currentExecutor instanceof PostLoginExecutor ? inGameExecutor.start(params[1], params[2]) : currentExecutor;
+            case "observe" -> currentExecutor instanceof PostLoginExecutor ? inGameExecutor.start(params[1], "") : currentExecutor;
             case "leave" -> currentExecutor instanceof InGameExecutor ? postLoginExecutor : currentExecutor;
             default -> currentExecutor;
         };

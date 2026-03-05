@@ -79,6 +79,9 @@ public class PostLoginExecutor implements Executor {
             );
             serverGameIDs.add(i, game.gameID());
         }
+        if(gameList.isEmpty()) {
+            return "no games to list";
+        }
         return gameList.toString();
     }
 
@@ -94,8 +97,6 @@ public class PostLoginExecutor implements Executor {
         JoinGameRequest request = new JoinGameRequest(color, serverGameIDs.get(Integer.parseInt(params[1])-1));
         facade.joinGame(request, facade.getAuth());
 
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
         return "Joined " + params[1] + " as " + params[2] + "\n";
     }
 
